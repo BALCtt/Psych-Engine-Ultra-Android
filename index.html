@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psych Engine Ultra</title>
+<link rel="icon" href="https://i.imgur.com/6KxiLR9.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+  --bg: #08080f;
+  --panel: #0d0d1a;
+  --panel2: #111127;
+  --border: #1e1e3a;
+  --border2: #2a2a4a;
+  --purple: #c084fc;
+  --purple2: #a855f7;
+  --purple3: #7c3aed;
+  --muted: #8888aa;
+  --white: #ffffff;
+  --gold: #fbbf24;
+  --silver: #94a3b8;
+  --bronze: #cd7c3a;
+  --green: #34d399;
+  --red: #f87171;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-display: 'Orbitron', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--white); font-family:var(--font-mono); overflow-x:hidden; }
+
+/* ── NAV ── */
+nav {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 48px; height:64px;
+  border-bottom:1px solid var(--border);
+  background:rgba(8,8,15,0.97);
+  position:sticky; top:0; z-index:999;
+  backdrop-filter:blur(16px);
+}
+.nav-brand { display:flex; align-items:center; gap:10px; }
+.nav-logo { font-family:var(--font-display); font-size:14px; font-weight:700; color:var(--purple); letter-spacing:3px; }
+.nav-version { font-size:9px; color:var(--muted); letter-spacing:2px; }
+.nav-links { display:flex; gap:4px; align-items:center; }
+.nav-links a {
+  color:var(--muted); text-decoration:none; font-size:11px;
+  letter-spacing:2px; padding:8px 16px; border-radius:4px;
+  border:1px solid transparent; transition:all .2s; cursor:pointer;
+}
+.nav-links a:hover { color:var(--purple); }
+.nav-links a.nav-active { color:var(--purple); background:rgba(192,132,252,0.08); border-color:var(--border); }
+.nav-dl { background:var(--purple3)!important; border:1px solid var(--purple)!important; border-radius:4px; color:#fff!important; }
+.nav-dl:hover { background:var(--purple2)!important; }
+.nav-auth-btn {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 16px; border-radius:4px;
+  border:1px solid var(--border2); color:var(--muted);
+  font-family:var(--font-mono); font-size:11px; letter-spacing:2px;
+  cursor:pointer; background:transparent; transition:all .2s;
+}
+.nav-auth-btn:hover { border-color:var(--purple); color:var(--purple); }
+.nav-user-pill {
+  display:flex; align-items:center; gap:8px;
+  padding:5px 12px; border-radius:20px;
+  background:rgba(192,132,252,0.1); border:1px solid var(--border2);
+  cursor:pointer; transition:all .2s;
+}
+.nav-user-pill:hover { border-color:var(--purple); }
+.nav-user-av {
+  width:24px; height:24px; border-radius:50%;
+  background:var(--purple3); display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-family:var(--font-display); font-weight:700; color:#fff;
+}
+.nav-user-name { font-size:11px; color:var(--purple); letter-spacing:1px; }
+
+/* ── PAGE TRANSITIONS ── */
+.page { display:none; opacity:0; transform:translateY(16px); transition:opacity .35s ease, transform .35s ease; }
+.page.active { display:block; }
+.page.visible { opacity:1; transform:translateY(0); }
+
+/* ── HERO ── */
+.hero {
+  min-height:calc(100vh - 64px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:40px 48px; position:relative; overflow:hidden;
+}
+.hero-eyebrow { font-size:11px; color:var(--purple); letter-spacing:4px; margin-bottom:16px; }
+.hero-logo {
+  height:220px; margin-bottom:20px;
+  filter:drop-shadow(0 0 40px #7c3aed);
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.hero-title { font-family:var(--font-display); font-size:72px; font-weight:900; line-height:1; margin-bottom:16px; }
+.hero-title .line2 { color:var(--purple); }
+.hero-subtitle { margin:0 0 28px; color:#aaaacc; font-size:13px; letter-spacing:1px; max-width:500px; line-height:1.8; }
+.stats { display:flex; gap:40px; margin-bottom:28px; flex-wrap:wrap; justify-content:center; }
+.stat { text-align:center; }
+.stat-number { font-size:28px; color:var(--purple); font-family:var(--font-display); }
+.stat-label { font-size:10px; color:var(--muted); letter-spacing:2px; margin-top:4px; }
+.hero-btns { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.btn-primary {
+  padding:14px 32px; background:var(--purple3); border:1px solid var(--purple);
+  color:#fff; text-decoration:none; font-family:var(--font-mono); font-size:12px;
+  letter-spacing:2px; border-radius:3px; transition:all .2s; cursor:pointer; display:inline-block;
+}
+.btn-primary:hover { background:var(--purple2); transform:translateY(-2px); }
+.btn-secondary {
+  padding:14px 32px; border:1px solid var(--border2); color:#aaaacc;
+  text-decoration:none; font-family:var(--font-mono); font-size:12px;
+  letter-spacing:2px; border-radius:3px; transition:all .2s; display:inline-block;
+}
+.btn-secondary:hover { border-color:var(--purple); color:var(--purple); transform:translateY(-2px); }
+
+/* ── SECTION ── */
+.section { padding:80px 48px; border-top:1px solid var(--border); }
+.section-label { font-size:10px; color:var(--purple); letter-spacing:4px; margin-bottom:8px; }
+.section-title { font-family:var(--font-display); font-size:32px; margin-bottom:40px; }
+
+/* ── DOWNLOADS ── */
+.dl-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:16px; }
+.dl-card {
+  background:var(--panel); border:1px solid var(--border); border-radius:6px;
+  padding:28px 16px; text-decoration:none; color:#fff; text-align:center;
+  transition:all .2s; display:block; position:relative; overflow:hidden;
+}
+.dl-card:hover { border-color:var(--purple); transform:translateY(-4px); background:var(--panel2); }
+.dl-card.unavailable { opacity:0.45; cursor:not-allowed; pointer-events:none; }
+.dl-icon { width:40px; height:40px; margin:0 auto 12px; filter:brightness(0) invert(1); display:block; }
+.dl-os { font-size:13px; font-weight:bold; margin-bottom:4px; letter-spacing:1px; }
+.dl-arch { font-size:10px; color:var(--muted); margin-bottom:12px; }
+.dl-btn-label { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--purple); letter-spacing:1px; }
+.dl-badge { position:absolute; top:10px; right:10px; font-size:9px; padding:2px 7px; background:rgba(192,132,252,0.15); color:var(--purple); border-radius:2px; letter-spacing:1px; }
+.dl-badge.soon { background:rgba(90,90,122,0.2); color:var(--muted); }
+.dl-src {
+  display:flex; align-items:center; gap:16px; padding:20px 24px;
+  background:var(--panel); border:1px solid var(--border); border-radius:6px;
+  text-decoration:none; transition:all .2s; margin-top:12px;
+}
+.dl-src:hover { border-color:var(--purple); }
+.dl-src-icon { font-size:24px; }
+.dl-src-title { font-size:13px; color:#fff; letter-spacing:1px; }
+.dl-src-sub   { font-size:11px; color:var(--muted); margin-top:2px; }
+.dl-src-arrow { margin-left:auto; color:var(--purple); font-size:20px; }
+
+/* ── FEATURES ── */
+.feature { display:flex; align-items:center; gap:48px; margin-bottom:64px; }
+.feature:nth-child(even) { flex-direction:row-reverse; }
+.feature img { width:480px; border-radius:8px; border:1px solid var(--border); flex-shrink:0; }
+.feature-text h3 { font-family:var(--font-display); color:var(--purple); margin-bottom:10px; font-size:18px; letter-spacing:1px; }
+.feature-text p { color:#aaaacc; line-height:1.9; font-size:13px; }
+
+/* ── FAQ ── */
+.faq-list { display:flex; flex-direction:column; gap:2px; max-width:800px; }
+.faq-item { background:var(--panel); border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+.faq-q {
+  padding:18px 24px; font-size:13px; color:#ddd; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; transition:background .2s; user-select:none;
+}
+.faq-q:hover { background:rgba(192,132,252,0.04); }
+.faq-q.open { color:var(--purple); }
+.faq-tag { font-size:9px; padding:2px 8px; background:rgba(192,132,252,0.1); color:var(--purple); border-radius:2px; letter-spacing:1px; flex-shrink:0; }
+.faq-arrow { color:var(--muted); font-size:14px; transition:transform .3s; flex-shrink:0; }
+.faq-q.open .faq-arrow { transform:rotate(90deg); color:var(--purple); }
+.faq-a {
+  max-height:0; overflow:hidden; transition:max-height .35s ease, padding .3s;
+  font-size:13px; color:#aaaacc; line-height:1.9; padding:0 24px;
+  border-top:0 solid var(--border);
+}
+.faq-a.open { max-height:300px; padding:14px 24px 20px; border-top-width:1px; }
+
+/* ── LEADERBOARD ── */
+.lb-hero {
+  padding:48px 48px 32px; border-bottom:1px solid var(--border);
+  position:relative; overflow:hidden;
+}
+.lb-hero-bg {
+  position:absolute; inset:0;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:48px 48px; opacity:0.2;
+  mask-image:linear-gradient(to bottom,transparent,black 40%,black 70%,transparent);
+}
+.lb-hero-title { font-family:var(--font-display); font-size:clamp(28px,5vw,52px); font-weight:900; letter-spacing:-1px; position:relative; }
+.lb-hero-title span { color:var(--purple); }
+.lb-hero-sub { font-size:11px; color:var(--muted); letter-spacing:3px; margin-top:6px; position:relative; }
+.lb-stats-row { display:flex; gap:16px; flex-wrap:wrap; margin-top:28px; position:relative; }
+.lb-stat { background:var(--panel); border:1px solid var(--border); border-radius:4px; padding:14px 24px; min-width:110px; }
+.lb-stat .num { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--purple); }
+.lb-stat .lbl { font-size:9px; color:var(--muted); letter-spacing:2px; margin-top:4px; }
+
+/* TOP 3 PODIUM */
+.podium {
+  display:flex; align-items:flex-end; justify-content:center;
+  gap:16px; padding:32px 48px 0; background:var(--panel);
+  border-bottom:1px solid var(--border);
+}
+.podium-card {
+  flex:1; max-width:280px; border-radius:8px 8px 0 0;
+  padding:24px 20px; text-align:center; position:relative; overflow:hidden;
+  border:1px solid var(--border); border-bottom:none;
+}
+.podium-card.p1 {
+  background:linear-gradient(180deg,rgba(251,191,36,0.12) 0%,rgba(13,13,26,0.95) 100%);
+  border-color:rgba(251,191,36,0.4); min-height:220px;
+}
+.podium-card.p2 {
+  background:linear-gradient(180deg,rgba(148,163,184,0.1) 0%,rgba(13,13,26,0.95) 100%);
+  border-color:rgba(148,163,184,0.3); min-height:180px;
+}
+.podium-card.p3 {
+  background:linear-gradient(180deg,rgba(205,124,58,0.1) 0%,rgba(13,13,26,0.95) 100%);
+  border-color:rgba(205,124,58,0.3); min-height:160px;
+}
+.podium-medal { font-size:36px; display:block; margin-bottom:8px; }
+.podium-av {
+  width:56px; height:56px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:18px; font-weight:700;
+  margin:0 auto 10px; border:3px solid;
+}
+.p1 .podium-av { background:rgba(251,191,36,0.15); border-color:var(--gold); color:var(--gold); }
+.p2 .podium-av { background:rgba(148,163,184,0.12); border-color:var(--silver); color:var(--silver); }
+.p3 .podium-av { background:rgba(205,124,58,0.12); border-color:var(--bronze); color:var(--bronze); }
+.podium-name { font-size:15px; font-weight:700; margin-bottom:4px; }
+.p1 .podium-name { color:var(--gold); }
+.p2 .podium-name { color:var(--silver); }
+.p3 .podium-name { color:var(--bronze); }
+.podium-country { font-size:18px; margin-bottom:6px; }
+.podium-score { font-family:var(--font-display); font-size:14px; color:#fff; margin-bottom:4px; }
+.podium-meta { font-size:11px; color:var(--muted); }
+.podium-badge {
+  position:absolute; top:10px; right:10px;
+  font-size:9px; padding:3px 8px; border-radius:2px; letter-spacing:1px;
+}
+.p1 .podium-badge { background:rgba(251,191,36,0.2); color:var(--gold); }
+.p2 .podium-badge { background:rgba(148,163,184,0.15); color:var(--silver); }
+.p3 .podium-badge { background:rgba(205,124,58,0.15); color:var(--bronze); }
+.podium-lvl { font-size:10px; color:var(--muted); margin-top:2px; }
+
+.lb-filters {
+  display:flex; align-items:center; gap:10px;
+  padding:14px 48px; border-bottom:1px solid var(--border);
+  flex-wrap:wrap; background:rgba(13,13,26,0.5);
+}
+.filter-btn {
+  padding:6px 16px; background:transparent; border:1px solid var(--border);
+  border-radius:3px; color:var(--muted); font-family:var(--font-mono);
+  font-size:10px; letter-spacing:2px; cursor:pointer; transition:all .2s;
+}
+.filter-btn:hover,.filter-btn.active { border-color:var(--purple); color:var(--purple); background:rgba(192,132,252,0.06); }
+.lb-search { margin-left:auto; position:relative; }
+.lb-search input {
+  background:var(--panel); border:1px solid var(--border); border-radius:3px;
+  padding:7px 14px 7px 30px; color:#fff; font-family:var(--font-mono);
+  font-size:11px; width:220px; outline:none; transition:border .2s;
+}
+.lb-search input:focus { border-color:var(--purple); }
+.lb-search::before { content:'⌕'; position:absolute; left:9px; top:7px; color:var(--muted); font-size:14px; }
+.lb-wrap { padding:24px 48px 48px; }
+.lb-table { width:100%; border-collapse:collapse; }
+.lb-table thead th {
+  text-align:left; padding:10px 16px; font-size:9px;
+  color:var(--muted); letter-spacing:3px; border-bottom:1px solid var(--border);
+  font-family:var(--font-display);
+}
+.lb-table tbody tr { border-bottom:1px solid rgba(30,30,58,0.5); transition:background .15s; }
+.lb-table tbody tr:hover { background:rgba(192,132,252,0.04); }
+.lb-table tbody td { padding:13px 16px; font-size:13px; }
+.rank-cell { font-family:var(--font-display); font-size:14px; font-weight:700; min-width:44px; }
+.rank-1{color:var(--gold)} .rank-2{color:var(--silver)} .rank-3{color:var(--bronze)} .rank-other{color:#3a3a5a}
+.player-cell { display:flex; align-items:center; gap:12px; }
+.av {
+  width:34px; height:34px; border-radius:50%; background:var(--border);
+  border:2px solid var(--border2); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:11px; font-weight:700; color:var(--purple); flex-shrink:0;
+}
+.av.g1{border-color:var(--gold)} .av.g2{border-color:var(--silver)} .av.g3{border-color:var(--bronze)}
+.pname { font-size:14px; font-weight:700; color:#eee; }
+.pbadge { font-size:9px; padding:2px 7px; border-radius:2px; background:rgba(192,132,252,0.12); color:var(--purple); letter-spacing:1px; margin-left:6px; }
+.flag{font-size:16px}
+.lvl { padding:3px 10px; border-radius:2px; background:rgba(192,132,252,0.08); color:var(--purple); font-size:11px; font-family:var(--font-display); }
+.score { font-family:var(--font-display); font-size:14px; font-weight:700; color:#fff; }
+.acc-ss{color:#a78bfa} .acc-s{color:#60a5fa} .acc-a{color:#34d399} .acc-b{color:#fbbf24} .acc-c{color:var(--muted)}
+.songs{color:var(--muted);font-size:12px}
+.state-msg { text-align:center; padding:80px 20px; color:var(--muted); font-size:12px; letter-spacing:3px; }
+.spinner { width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--purple); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 16px; }
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── AUTH MODAL ── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.8);
+  z-index:9999; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .3s;
+  backdrop-filter:blur(8px);
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--panel); border:1px solid var(--border2);
+  border-radius:10px; width:100%; max-width:440px; margin:16px;
+  transform:translateY(24px); transition:transform .3s;
+  overflow:hidden;
+}
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-left {
+  background:linear-gradient(135deg,rgba(124,58,237,0.3) 0%,rgba(13,13,26,0) 100%);
+  border-right:1px solid var(--border);
+  padding:32px 28px;
+}
+.modal-body { padding:32px 28px; }
+.modal-tabs { display:flex; background:var(--bg); border-radius:6px; padding:3px; margin-bottom:24px; border:1px solid var(--border); }
+.mtab {
+  flex:1; text-align:center; padding:8px; border-radius:4px;
+  font-size:11px; letter-spacing:2px; cursor:pointer; color:var(--muted);
+  font-family:var(--font-mono); border:none; background:transparent; transition:all .2s;
+}
+.mtab.on { background:var(--purple3); color:#fff; }
+.modal-title { font-family:var(--font-display); font-size:20px; font-weight:700; margin-bottom:4px; }
+.modal-sub { font-size:11px; color:var(--muted); letter-spacing:1px; margin-bottom:24px; }
+.field { margin-bottom:16px; }
+.field label { display:block; font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:6px; }
+.field input, .field select {
+  width:100%; background:var(--bg); border:1px solid var(--border);
+  border-radius:6px; padding:11px 14px; color:#fff;
+  font-family:var(--font-mono); font-size:13px; outline:none;
+  transition:border .2s;
+}
+.field input:focus, .field select:focus { border-color:var(--purple); }
+.field select option { background:var(--panel); }
+.modal-err { font-size:12px; color:var(--red); margin-bottom:12px; min-height:18px; }
+.modal-ok  { font-size:12px; color:var(--green); margin-bottom:12px; min-height:18px; }
+.modal-btn {
+  width:100%; padding:13px; background:var(--purple3); border:1px solid var(--purple);
+  border-radius:6px; color:#fff; font-family:var(--font-mono); font-size:13px;
+  letter-spacing:2px; cursor:pointer; transition:all .2s; margin-bottom:10px;
+}
+.modal-btn:hover { background:var(--purple2); }
+.modal-btn-sec {
+  width:100%; padding:11px; background:transparent; border:1px solid var(--border);
+  border-radius:6px; color:var(--muted); font-family:var(--font-mono); font-size:11px;
+  letter-spacing:1px; cursor:pointer; transition:all .2s;
+}
+.modal-btn-sec:hover { border-color:var(--purple); color:var(--purple); }
+.modal-close {
+  position:absolute; top:16px; right:16px; background:none;
+  border:none; color:var(--muted); font-size:20px; cursor:pointer;
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  border-radius:4px; transition:all .2s;
+}
+.modal-close:hover { color:#fff; background:rgba(255,255,255,0.05); }
+
+/* user profile dropdown */
+.user-menu {
+  position:absolute; top:72px; right:48px;
+  background:var(--panel); border:1px solid var(--border2); border-radius:8px;
+  min-width:200px; padding:8px; z-index:1000;
+  opacity:0; pointer-events:none; transform:translateY(-8px);
+  transition:all .2s;
+}
+.user-menu.open { opacity:1; pointer-events:all; transform:translateY(0); }
+.user-menu-header { padding:12px 12px 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+.user-menu-name { font-size:13px; font-weight:700; color:var(--purple); }
+.user-menu-email { font-size:11px; color:var(--muted); margin-top:2px; }
+.user-menu-item {
+  display:flex; align-items:center; gap:10px; padding:9px 12px;
+  border-radius:5px; font-size:12px; color:#ccc; cursor:pointer;
+  transition:all .15s; letter-spacing:1px;
+}
+.user-menu-item:hover { background:rgba(192,132,252,0.08); color:var(--purple); }
+.user-menu-item.danger { color:var(--red); }
+.user-menu-item.danger:hover { background:rgba(248,113,113,0.08); }
+
+/* ── FOOTER ── */
+footer {
+  border-top:1px solid var(--border); padding:28px 48px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.footer-logo { font-family:var(--font-display); font-size:12px; color:var(--muted); letter-spacing:2px; }
+.footer-links { display:flex; gap:20px; }
+.footer-links a { font-size:11px; color:var(--muted); text-decoration:none; letter-spacing:1px; transition:color .2s; }
+.footer-links a:hover { color:var(--purple); }
+.footer-copy { width:100%; font-size:10px; color:#3a3a5a; letter-spacing:1px; margin-top:4px; }
+
+@media(max-width:768px){
+  nav{padding:0 16px}
+  .nav-links a:not(.nav-dl){display:none}
+  .hero,.section,.lb-hero,.lb-wrap{padding-left:16px;padding-right:16px}
+  .hero-title{font-size:42px}
+  .lb-filters{padding:12px 16px}
+  .lb-search{margin-left:0;width:100%}
+  .lb-search input{width:100%}
+  .feature{flex-direction:column!important}
+  .feature img{width:100%}
+  .podium{flex-direction:column;align-items:center;padding:24px 16px 0}
+  .podium-card{width:100%;max-width:100%;min-height:auto!important;border-radius:8px;margin-bottom:8px}
+  .lb-table thead th:nth-child(3),.lb-table tbody td:nth-child(3),
+  .lb-table thead th:nth-child(6),.lb-table tbody td:nth-child(6){display:none}
+  footer{padding:20px 16px}
+  .user-menu{right:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <img src="https://i.imgur.com/6KxiLR9.png" height="32">
+    <div>
+      <div class="nav-logo">PSYCH ENGINE ULTRA</div>
+      <div class="nav-version">v0.1.3 — ANDROID & DESKTOP</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a onclick="showPage('home',this)" class="nav-active">HOME</a>
+    <a onclick="showPage('online',this)">ONLINE</a>
+    <a onclick="showPage('faq',this)">FAQ</a>
+    <a class="nav-dl" onclick="showPage('home',document.querySelector('.nav-links a'));setTimeout(()=>document.getElementById('downloads').scrollIntoView({behavior:'smooth'}),80)">DOWNLOAD</a>
+    <div id="nav-auth-area" style="display:flex;align-items:center;gap:8px;margin-left:8px">
+      <button class="nav-auth-btn" onclick="openModal('login')">SIGN IN</button>
+      <button class="nav-auth-btn" style="background:rgba(192,132,252,0.1);border-color:var(--purple);color:var(--purple)" onclick="openModal('register')">REGISTER</button>
+    </div>
+  </div>
+</nav>
+
+<!-- USER MENU DROPDOWN -->
+<div class="user-menu" id="user-menu">
+  <div class="user-menu-header">
+    <div class="user-menu-name" id="um-name">—</div>
+    <div class="user-menu-email" id="um-email">—</div>
+  </div>
+  <div class="user-menu-item" onclick="showPage('online',document.querySelectorAll('.nav-links a')[1])">⚡ LEADERBOARD</div>
+  <div class="user-menu-item danger" onclick="signOut()">↩ SIGN OUT</div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="mtab on" id="mtab-login" onclick="switchTab('login')">SIGN IN</button>
+        <button class="mtab" id="mtab-reg" onclick="switchTab('register')">REGISTER</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="mform-login">
+        <div class="modal-title">Welcome Back</div>
+        <div class="modal-sub">Sign in to your Psych Engine Ultra account</div>
+        <div class="field"><label>USERNAME</label><input id="l-user" type="text" placeholder="your username..." autocomplete="username"/></div>
+        <div class="field"><label>PASSWORD</label><input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+        <div class="modal-err" id="l-err"></div>
+        <button class="modal-btn" onclick="doLogin()">SIGN IN</button>
+        <button class="modal-btn-sec" onclick="doForgot()">FORGOT PASSWORD</button>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="mform-reg" style="display:none">
+        <div class="modal-title">Create Account</div>
+        <div class="modal-sub">Join the Psych Engine Ultra community</div>
+        <div class="field"><label>USERNAME (min. 4 chars)</label><input id="r-user" type="text" placeholder="choose a username..." maxlength="20"/></div>
+        <div class="field"><label>EMAIL</label><input id="r-email" type="email" placeholder="your@email.com"/></div>
+        <div class="field"><label>PASSWORD (min. 6 chars)</label><input id="r-pass" type="password" placeholder="••••••••" maxlength="50"/></div>
+        <div class="field"><label>COUNTRY</label>
+          <select id="r-country">
+            <option value="Turkey">🇹🇷 Turkey</option>
+            <option value="United States">🇺🇸 United States</option>
+            <option value="United Kingdom">🇬🇧 United Kingdom</option>
+            <option value="Germany">🇩🇪 Germany</option>
+            <option value="France">🇫🇷 France</option>
+            <option value="Japan">🇯🇵 Japan</option>
+            <option value="Brazil">🇧🇷 Brazil</option>
+            <option value="Russia">🇷🇺 Russia</option>
+            <option value="Other">🌍 Other</option>
+          </select>
+        </div>
+        <div class="modal-err" id="r-err"></div>
+        <div class="modal-ok"  id="r-ok"></div>
+        <button class="modal-btn" onclick="doRegister()">CREATE ACCOUNT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-eyebrow">FRIDAY NIGHT FUNKIN' MOD ENGINE</div>
+    <img src="https://i.imgur.com/6KxiLR9.png" class="hero-logo">
+    <h1 class="hero-title">PSYCH ENGINE<br><span class="line2">ULTRA</span></h1>
+    <p class="hero-subtitle">Online leaderboards, account system, level progression — available free for Android & Desktop.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-number" id="activePlayers">—</div><div class="stat-label">REGISTERED PLAYERS</div></div>
+      <div class="stat"><div class="stat-number" id="totalDownloads">—</div><div class="stat-label">TOTAL DOWNLOADS</div></div>
+    </div>
+    <div class="hero-btns">
+      <a class="btn-primary" onclick="showPage('online',document.querySelectorAll('.nav-links a')[1])">⚡ LEADERBOARD</a>
+      <a class="btn-primary" onclick="showPage('home',document.querySelector('.nav-links a'));setTimeout(()=>document.getElementById('downloads').scrollIntoView({behavior:'smooth'}),80)">↓ DOWNLOAD</a>
+      <a href="https://github.com/Samedcan1234/Psych-Engine-Ultra-Android" target="_blank" class="btn-secondary">⌥ SOURCE CODE</a>
+    </div>
+  </div>
+
+  <!-- DOWNLOADS -->
+  <div class="section" id="downloads">
+    <div class="section-label">// DOWNLOAD</div>
+    <div class="section-title">DOWNLOADS</div>
+    <div class="dl-grid">
+      <a href="https://github.com/Samedcan1234/Psych-Engine-Ultra-Android/releases" class="dl-card" target="_blank">
+        <span class="dl-badge">STABLE</span>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_logo_-_2012.svg" class="dl-icon">
+        <div class="dl-os">WINDOWS</div><div class="dl-arch">x64 / x86</div>
+        <div class="dl-btn-label">↓ DOWNLOAD .EXE</div>
+      </a>
+      <a href="https://github.com/Samedcan1234/Psych-Engine-Ultra-Android/releases" class="dl-card" target="_blank">
+        <span class="dl-badge">STABLE</span>
+        <img src="https://cdn.simpleicons.org/linux/ffffff" class="dl-icon">
+        <div class="dl-os">LINUX</div><div class="dl-arch">x64</div>
+        <div class="dl-btn-label">↓ DOWNLOAD</div>
+      </a>
+      <a href="https://github.com/Samedcan1234/Psych-Engine-Ultra-Android/releases" class="dl-card" target="_blank">
+        <span class="dl-badge">STABLE</span>
+        <img src="https://cdn.simpleicons.org/apple/ffffff" class="dl-icon">
+        <div class="dl-os">MACOS</div><div class="dl-arch">Intel / Apple Silicon</div>
+        <div class="dl-btn-label">↓ DOWNLOAD .DMG</div>
+      </a>
+      <a href="https://github.com/Samedcan1234/Psych-Engine-Ultra-Android/releases" class="dl-card" target="_blank">
+        <span class="dl-badge">STABLE</span>
+        <img src="https://cdn.simpleicons.org/android/ffffff" class="dl-icon">
+        <div class="dl-os">ANDROID</div><div class="dl-arch">ARM64 / ARMv7</div>
+        <div class="dl-btn-label">↓ DOWNLOAD .APK</div>
+      </a>
+      <a href="https://github.com/Samedcan1234/Psych-Engine-Ultra-Android/releases" class="dl-card" target="_blank">
+        <span class="dl-badge soon">BETA</span>
+        <img src="https://cdn.simpleicons.org/apple/ffffff" class="dl-icon">
+        <div class="dl-os">IOS</div><div class="dl-arch">iPhone / iPad</div>
+        <div class="dl-btn-label">↓ DOWNLOAD .IPA</div>
+      </a>
+    </div>
+    <a href="https://github.com/Samedcan1234/Psych-Engine-Ultra-Android" target="_blank" class="dl-src">
+      <span class="dl-src-icon">⌥</span>
+      <div><div class="dl-src-title">SOURCE CODE — GITHUB</div><div class="dl-src-sub">Fork it, mod it, contribute. Open source forever.</div></div>
+      <span class="dl-src-arrow">→</span>
+    </a>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section">
+    <div class="section-label">// FEATURES</div>
+    <div class="section-title">WHAT IS PSYCH ENGINE ULTRA?</div>
+    <div class="feature">
+      <img src="https://i.imgur.com/6KxiLR9.png">
+      <div class="feature-text">
+        <h3>ONLINE SYSTEM</h3>
+        <p>Login system, global leaderboard and cloud save. Register once on the website or in-game, compete worldwide. Your scores sync automatically after every song you complete.</p>
+      </div>
+    </div>
+    <div class="feature">
+      <img src="https://i.imgur.com/2DhmtJ4.png">
+      <div class="feature-text">
+        <h3>ANDROID SUPPORT</h3>
+        <p>Fully optimized Android port with touch controls and performance improvements. Play anywhere, anytime — same account, same leaderboard across all your devices.</p>
+      </div>
+    </div>
+    <div class="feature">
+      <img src="https://i.imgur.com/2DhmtJ4.png">
+      <div class="feature-text">
+        <h3>PERFORMANCE BOOST</h3>
+        <p>Improved memory usage, faster loading times and optimized rendering. Built on Psych Engine with full Lua & HScript mod support, enhanced for Ultra.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FAQ ══ -->
+<div id="page-faq" class="page">
+  <div class="section" style="min-height:calc(100vh - 64px)">
+    <div class="section-label">// FAQ</div>
+    <div class="section-title">FREQUENTLY ASKED QUESTIONS</div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>What is Psych Engine Ultra?</span>
+          <div style="display:flex;align-items:center;gap:10px"><span class="faq-tag">GENERAL</span><span class="faq-arrow">▶</span></div>
+        </div>
+        <div class="faq-a">Psych Engine Ultra is an enhanced fork of Psych Engine — the popular Friday Night Funkin' mod engine. Ultra adds online features like a global leaderboard, account system, level progression, and more on top of the solid Psych Engine foundation.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>What does "Ultra" add over regular Psych Engine?</span>
+          <div style="display:flex;align-items:center;gap:10px"><span class="faq-tag">FEATURES</span><span class="faq-arrow">▶</span></div>
+        </div>
+        <div class="faq-a">Ultra adds: Online account registration & login (web + in-game), Global real-time leaderboard, Level & XP system based on total score, Automatic score submission after every song, Country selection & profile stats, and a fully optimized Android build.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How do I create an account?</span>
+          <div style="display:flex;align-items:center;gap:10px"><span class="faq-tag">ACCOUNT</span><span class="faq-arrow">▶</span></div>
+        </div>
+        <div class="faq-a">You can register right here on the website by clicking REGISTER in the top right corner. You can also create an account in-game when you first launch. Once registered, you can log in on any platform using the same credentials.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Is an account required to play?</span>
+          <div style="display:flex;align-items:center;gap:10px"><span class="faq-tag">ACCOUNT</span><span class="faq-arrow">▶</span></div>
+        </div>
+        <div class="faq-a">No! You can skip account creation and play offline. However, without an account your scores won't appear on the global leaderboard and you won't have a level or profile. You can always create an account later.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>How does the level system work?</span>
+          <div style="display:flex;align-items:center;gap:10px"><span class="faq-tag">GAMEPLAY</span><span class="faq-arrow">▶</span></div>
+        </div>
+        <div class="faq-a">Every song you complete adds to your total score. Your level is calculated using: Level = √(TotalScore / 1000). Only your best score per song per difficulty counts toward the total, so replaying songs can improve your score.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Is Psych Engine Ultra free?</span>
+          <div style="display:flex;align-items:center;gap:10px"><span class="faq-tag">GENERAL</span><span class="faq-arrow">▶</span></div>
+        </div>
+        <div class="faq-a">Yes, completely free and open source. No ads, no paywalls, no premium features. Everything is available to everyone. The source code is on GitHub and you're free to fork and modify it for your own projects.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>Can I use mods with Ultra?</span>
+          <div style="display:flex;align-items:center;gap:10px"><span class="faq-tag">MODS</span><span class="faq-arrow">▶</span></div>
+        </div>
+        <div class="faq-a">Yes! Psych Engine Ultra is fully compatible with Lua and HScript mods, just like regular Psych Engine. Place your mods in the /mods folder as usual. Note: online scores are only tracked for songs from the base game.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>I forgot my password. What do I do?</span>
+          <div style="display:flex;align-items:center;gap:10px"><span class="faq-tag">ACCOUNT</span><span class="faq-arrow">▶</span></div>
+        </div>
+        <div class="faq-a">Click SIGN IN on the website, enter your email in the username field, and click "FORGOT PASSWORD". A reset link will be sent to your email within a few minutes. In-game, enter your email in the username field and tap the forgot password button.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ONLINE ══ -->
+<div id="page-online" class="page">
+  <div class="lb-hero">
+    <div class="lb-hero-bg"></div>
+    <div class="lb-hero-title">GLOBAL <span>RANKING</span></div>
+    <div class="lb-hero-sub">TOP PLAYERS — EN İYİ OYUNCULAR</div>
+    <div class="lb-stats-row">
+      <div class="lb-stat"><div class="num" id="lb-p">—</div><div class="lbl">PLAYERS</div></div>
+      <div class="lb-stat"><div class="num" id="lb-s">—</div><div class="lbl">SONGS PLAYED</div></div>
+      <div class="lb-stat"><div class="num" id="lb-t">—</div><div class="lbl">TOP SCORE</div></div>
+      <div class="lb-stat"><div class="num" id="lb-upd">—</div><div class="lbl">LAST UPDATE</div></div>
+    </div>
+  </div>
+
+  <!-- TOP 3 PODIUM -->
+  <div class="podium" id="podium" style="display:none">
+    <div class="podium-card p2" id="pod2">
+      <span class="podium-badge">RUNNER UP</span>
+      <span class="podium-medal">🥈</span>
+      <div class="podium-av" id="pod2-av">—</div>
+      <div class="podium-name" id="pod2-name">—</div>
+      <div class="podium-country" id="pod2-flag">🌍</div>
+      <div class="podium-score" id="pod2-score">—</div>
+      <div class="podium-meta" id="pod2-meta">—</div>
+    </div>
+    <div class="podium-card p1" id="pod1">
+      <span class="podium-badge">CHAMPION</span>
+      <span class="podium-medal">🥇</span>
+      <div class="podium-av" id="pod1-av">—</div>
+      <div class="podium-name" id="pod1-name">—</div>
+      <div class="podium-country" id="pod1-flag">🌍</div>
+      <div class="podium-score" id="pod1-score">—</div>
+      <div class="podium-meta" id="pod1-meta">—</div>
+    </div>
+    <div class="podium-card p3" id="pod3">
+      <span class="podium-badge">TOP 3</span>
+      <span class="podium-medal">🥉</span>
+      <div class="podium-av" id="pod3-av">—</div>
+      <div class="podium-name" id="pod3-name">—</div>
+      <div class="podium-country" id="pod3-flag">🌍</div>
+      <div class="podium-score" id="pod3-score">—</div>
+      <div class="podium-meta" id="pod3-meta">—</div>
+    </div>
+  </div>
+
+  <div class="lb-filters">
+    <button class="filter-btn active" onclick="setFilter('all',this)">ALL TIME</button>
+    <button class="filter-btn" onclick="setFilter('week',this)">THIS WEEK</button>
+    <button class="filter-btn" onclick="setFilter('today',this)">TODAY</button>
+    <div class="lb-search"><input type="text" id="lb-search" placeholder="Search player..." oninput="filterTable()"/></div>
+  </div>
+
+  <div class="lb-wrap">
+    <div id="lb-loading" class="state-msg"><div class="spinner"></div>LOADING...</div>
+    <table class="lb-table" id="lb-table" style="display:none">
+      <thead><tr><th>#</th><th>PLAYER</th><th>COUNTRY</th><th>LEVEL</th><th>TOTAL SCORE</th><th>BEST ACC</th><th>SONGS</th></tr></thead>
+      <tbody id="lb-body"></tbody>
+    </table>
+    <div id="lb-empty" class="state-msg" style="display:none">NO PLAYERS YET</div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">PSYCH ENGINE ULTRA</div>
+  <div class="footer-links">
+    <a href="https://github.com/Samedcan1234/Psych-Engine-Ultra-Android" target="_blank">GITHUB</a>
+    <a onclick="showPage('faq',document.querySelectorAll('.nav-links a')[2])">FAQ</a>
+    <a onclick="showPage('online',document.querySelectorAll('.nav-links a')[1])">LEADERBOARD</a>
+  </div>
+  <div class="footer-copy">© 2024 SametGkTe — Psych Engine Ultra is not affiliated with ninjamuffin99 or the FNF team.</div>
+</footer>
+
+<script>
+const SB_URL = "https://ubhglndbbzidunjgnpqi.supabase.co";
+const SB_KEY = "sb_publishable_xShtsNZot0C3cIDqj3s2Ew_V3zJs_1k";
+const FLAGS  = {"Turkey":"🇹🇷","United States":"🇺🇸","United Kingdom":"🇬🇧","Germany":"🇩🇪","France":"🇫🇷","Japan":"🇯🇵","Brazil":"🇧🇷","Russia":"🇷🇺","Other":"🌍"};
+const BADWORDS = ["fuck","shit","ass","bitch","dick","cunt","nigga","nigger","faggot","retard","sik","orospu","piç","amk","yarrak","ibne","pezevenk"];
+
+var allData=[], lbLoaded=false, currentUser=null;
+
+// ── PAGE NAV ──
+function showPage(id, el) {
+  const pages = document.querySelectorAll('.page');
+  pages.forEach(p => { p.classList.remove('visible'); });
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('nav-active'));
+  const target = document.getElementById('page-' + id);
+  pages.forEach(p => p.classList.remove('active'));
+  target.classList.add('active');
+  if (el) el.classList.add('nav-active');
+  window.scrollTo(0,0);
+  requestAnimationFrame(() => requestAnimationFrame(() => target.classList.add('visible')));
+  if (id === 'online' && !lbLoaded) { lbLoaded=true; fetchLB(); }
+  closeUserMenu();
+}
+
+// ── FAQ ──
+function toggleFaq(el) {
+  const a = el.nextElementSibling;
+  const isOpen = a.classList.contains('open');
+  document.querySelectorAll('.faq-q').forEach(q => { q.classList.remove('open'); q.nextElementSibling.classList.remove('open'); });
+  if (!isOpen) { el.classList.add('open'); a.classList.add('open'); }
+}
+
+// ── AUTH MODAL ──
+function openModal(tab) {
+  document.getElementById('modal-overlay').classList.add('open');
+  switchTab(tab);
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeModalOutside(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+function switchTab(t) {
+  document.getElementById('mform-login').style.display = t==='login' ? 'block' : 'none';
+  document.getElementById('mform-reg').style.display   = t==='register' ? 'block' : 'none';
+  document.getElementById('mtab-login').className = 'mtab' + (t==='login'?' on':'');
+  document.getElementById('mtab-reg').className   = 'mtab' + (t==='register'?' on':'');
+  document.getElementById('l-err').textContent = '';
+  document.getElementById('r-err').textContent = '';
+  document.getElementById('r-ok').textContent  = '';
+}
+
+// ── USER MENU ──
+function toggleUserMenu() {
+  document.getElementById('user-menu').classList.toggle('open');
+}
+function closeUserMenu() {
+  document.getElementById('user-menu').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  const pill = document.querySelector('.nav-user-pill');
+  const menu = document.getElementById('user-menu');
+  if (pill && !pill.contains(e.target) && !menu.contains(e.target)) closeUserMenu();
+});
+
+function setLoggedIn(username, email) {
+  currentUser = {username, email};
+  document.getElementById('nav-auth-area').innerHTML = `
+    <div class="nav-user-pill" onclick="toggleUserMenu()">
+      <div class="nav-user-av">${username.substring(0,2).toUpperCase()}</div>
+      <span class="nav-user-name">${username}</span>
+      <span style="color:var(--muted);font-size:10px">▾</span>
+    </div>`;
+  document.getElementById('um-name').textContent  = username;
+  document.getElementById('um-email').textContent = email;
+}
+
+function signOut() {
+  currentUser = null;
+  localStorage.removeItem('peu_token');
+  localStorage.removeItem('peu_user');
+  localStorage.removeItem('peu_email');
+  document.getElementById('nav-auth-area').innerHTML = `
+    <button class="nav-auth-btn" onclick="openModal('login')">SIGN IN</button>
+    <button class="nav-auth-btn" style="background:rgba(192,132,252,0.1);border-color:var(--purple);color:var(--purple)" onclick="openModal('register')">REGISTER</button>`;
+  closeUserMenu();
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const user = document.getElementById('l-user').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  const errEl = document.getElementById('l-err');
+  if (!user||!pass) { errEl.textContent='Fill in all fields.'; return; }
+  errEl.textContent = 'Signing in...';
+
+  // Get email from profiles
+  try {
+    const pr = await fetch(`${SB_URL}/rest/v1/profiles?select=email&username=eq.${encodeURIComponent(user)}`, {
+      headers:{apikey:SB_KEY,Accept:'application/json'}
+    });
+    const pd = await pr.json();
+    if (!pd.length||!pd[0].email) { errEl.textContent='User not found.'; return; }
+    const email = pd[0].email;
+
+    const lr = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+      method:'POST',
+      headers:{apikey:SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pass,grant_type:'password'})
+    });
+    const ld = await lr.json();
+    if (ld.access_token) {
+      localStorage.setItem('peu_token', ld.access_token);
+      localStorage.setItem('peu_user',  user);
+      localStorage.setItem('peu_email', email);
+      setLoggedIn(user, email);
+      closeModal();
+      errEl.textContent='';
+    } else {
+      errEl.textContent = ld.error_description || ld.msg || 'Invalid credentials.';
+    }
+  } catch(e) { errEl.textContent='Connection error.'; }
+}
+
+// ── FORGOT ──
+async function doForgot() {
+  const user = document.getElementById('l-user').value.trim();
+  const errEl = document.getElementById('l-err');
+  if (!user.includes('@')) { errEl.textContent='Enter your email in the username field.'; return; }
+  await fetch(`${SB_URL}/auth/v1/recover`,{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:user})});
+  errEl.style.color='var(--green)';
+  errEl.textContent='Password reset email sent!';
+}
+
+// ── REGISTER ──
+async function doRegister() {
+  const user    = document.getElementById('r-user').value.trim();
+  const email   = document.getElementById('r-email').value.trim();
+  const pass    = document.getElementById('r-pass').value;
+  const country = document.getElementById('r-country').value;
+  const errEl   = document.getElementById('r-err');
+  const okEl    = document.getElementById('r-ok');
+
+  errEl.textContent=''; okEl.textContent='';
+
+  if (user.length<4)  { errEl.textContent='Username must be at least 4 characters.'; return; }
+  if (!email.includes('@')) { errEl.textContent='Invalid email address.'; return; }
+  if (pass.length<6)  { errEl.textContent='Password must be at least 6 characters.'; return; }
+  if (BADWORDS.some(w=>user.toLowerCase().includes(w))) { errEl.textContent='Username contains inappropriate words.'; return; }
+
+  errEl.textContent='Creating account...';
+
+  try {
+    const r = await fetch(`${SB_URL}/auth/v1/signup`,{
+      method:'POST',
+      headers:{apikey:SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pass,data:{username:user,country}})
+    });
+    const d = await r.json();
+    if (d.id || d.access_token) {
+      errEl.textContent='';
+      okEl.textContent='Account created! You can now sign in.';
+      if (d.access_token) {
+        localStorage.setItem('peu_token', d.access_token);
+        localStorage.setItem('peu_user',  user);
+        localStorage.setItem('peu_email', email);
+        setLoggedIn(user, email);
+        setTimeout(closeModal, 1200);
+      } else {
+        setTimeout(()=>switchTab('login'),1500);
+      }
+    } else {
+      const msg = d.msg||d.error_description||d.error||'Registration failed.';
+      errEl.textContent = msg.includes('already registered')?'This email is already registered.':msg;
+    }
+  } catch(e) { errEl.textContent='Connection error.'; }
+}
+
+// ── LEADERBOARD ──
+function setFilter(f,btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterTable();
+}
+function filterTable() {
+  const q=(document.getElementById('lb-search').value||'').toLowerCase();
+  renderTable(allData.filter(p=>(p.username||'').toLowerCase().includes(q)));
+}
+
+async function fetchLB() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/global_leaderboard?select=*`,{headers:{apikey:SB_KEY,Accept:'application/json'}});
+    const data = await r.json();
+    allData = Array.isArray(data) ? data : [];
+    renderPodium(allData);
+    renderTable(allData);
+    document.getElementById('lb-p').textContent = allData.length.toLocaleString();
+    document.getElementById('lb-s').textContent = allData.reduce((a,p)=>a+(p.songs_played||0),0).toLocaleString();
+    document.getElementById('lb-t').textContent = allData.length ? allData[0].total_score.toLocaleString() : '0';
+    const now=new Date();
+    document.getElementById('lb-upd').textContent=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  } catch(e) {
+    document.getElementById('lb-loading').innerHTML='<p style="color:#f87171;letter-spacing:2px">CONNECTION ERROR</p>';
+  }
+}
+
+function renderPodium(data) {
+  if (data.length < 1) return;
+  document.getElementById('podium').style.display='flex';
+  const fill = (n, p) => {
+    if (!p) { document.getElementById('pod'+n).style.display='none'; return; }
+    const init=(p.username||'?').substring(0,2).toUpperCase();
+    const flag=FLAGS[p.country]||'🌍';
+    const acc=(p.best_accuracy||0).toFixed(1);
+    document.getElementById('pod'+n+'-av').textContent=init;
+    document.getElementById('pod'+n+'-name').textContent=p.username||'Unknown';
+    document.getElementById('pod'+n+'-flag').textContent=flag;
+    document.getElementById('pod'+n+'-score').textContent=(p.total_score||0).toLocaleString()+' PTS';
+    document.getElementById('pod'+n+'-meta').textContent='Lv.'+( p.level||1)+' • '+acc+'% BEST ACC';
+  };
+  fill(1, data[0]);
+  fill(2, data[1]||null);
+  fill(3, data[2]||null);
+}
+
+function renderTable(data) {
+  document.getElementById('lb-loading').style.display='none';
+  if (!data.length) {
+    document.getElementById('lb-empty').style.display='block';
+    document.getElementById('lb-table').style.display='none';
+    return;
+  }
+  document.getElementById('lb-empty').style.display='none';
+  document.getElementById('lb-table').style.display='table';
+  document.getElementById('lb-body').innerHTML=data.map((p,i)=>{
+    const pos=i+1;
+    if(pos<=3) return '';
+    const init=(p.username||'?').substring(0,2).toUpperCase();
+    const flag=FLAGS[p.country]||'🌍';
+    const acc=(p.best_accuracy||0).toFixed(1);
+    const accCls=acc>=99?'acc-ss':acc>=95?'acc-s':acc>=85?'acc-a':acc>=70?'acc-b':'acc-c';
+    return `<tr>
+      <td><span class="rank-cell rank-other">${pos}</span></td>
+      <td><div class="player-cell"><div class="av">${init}</div><div><span class="pname">${p.username||'Unknown'}</span></div></div></td>
+      <td><span class="flag">${flag}</span></td>
+      <td><span class="lvl">Lv.${p.level||1}</span></td>
+      <td><span class="score">${(p.total_score||0).toLocaleString()}</span></td>
+      <td><span class="${accCls}">${acc}%</span></td>
+      <td><span class="songs">${p.songs_played||0}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── HERO STATS ──
+async function loadHeroStats() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/profiles?select=id,songs_played`,{headers:{apikey:SB_KEY,Accept:'application/json'}});
+    const d = await r.json();
+    if (Array.isArray(d)) {
+      document.getElementById('activePlayers').textContent = d.length.toLocaleString();
+    }
+  } catch(e) {}
+  // Downloads — statik değer, Supabase'de "stats" tablon varsa oradan çek
+  // Şimdilik GitHub releases sayısını göster
+  document.getElementById('totalDownloads').textContent = '—';
+}
+
+// ── AUTO LOGIN ──
+(function autoLogin(){
+  const token = localStorage.getItem('peu_token');
+  const user  = localStorage.getItem('peu_user');
+  const email = localStorage.getItem('peu_email');
+  if (token && user) setLoggedIn(user, email||'');
+})();
+
+// ── INIT ──
+loadHeroStats();
+setInterval(()=>{ if(lbLoaded) fetchLB(); }, 30000);
+
+// page transition on first load
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  document.getElementById('page-home').classList.add('visible');
+}));
+</script>
+</body>
+</html>
