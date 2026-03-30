@@ -70,10 +70,12 @@ nav {
 }
 .nav-user-pill:hover { border-color:var(--purple); }
 .nav-user-av {
-  width:24px; height:24px; border-radius:50%;
+  width:28px; height:28px; border-radius:50%;
   background:var(--purple3); display:flex; align-items:center; justify-content:center;
   font-size:10px; font-family:var(--font-display); font-weight:700; color:#fff;
+  overflow:hidden; flex-shrink:0;
 }
+.nav-user-av img { width:100%; height:100%; object-fit:cover; }
 .nav-user-name { font-size:11px; color:var(--purple); letter-spacing:1px; }
 
 /* ── PAGE TRANSITIONS ── */
@@ -220,8 +222,9 @@ nav {
   width:56px; height:56px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   font-family:var(--font-display); font-size:18px; font-weight:700;
-  margin:0 auto 10px; border:3px solid;
+  margin:0 auto 10px; border:3px solid; overflow:hidden;
 }
+.podium-av img { width:100%; height:100%; object-fit:cover; }
 .p1 .podium-av { background:rgba(251,191,36,0.15); border-color:var(--gold); color:var(--gold); }
 .p2 .podium-av { background:rgba(148,163,184,0.12); border-color:var(--silver); color:var(--silver); }
 .p3 .podium-av { background:rgba(205,124,58,0.12); border-color:var(--bronze); color:var(--bronze); }
@@ -239,7 +242,6 @@ nav {
 .p1 .podium-badge { background:rgba(251,191,36,0.2); color:var(--gold); }
 .p2 .podium-badge { background:rgba(148,163,184,0.15); color:var(--silver); }
 .p3 .podium-badge { background:rgba(205,124,58,0.15); color:var(--bronze); }
-.podium-lvl { font-size:10px; color:var(--muted); margin-top:2px; }
 
 .lb-filters {
   display:flex; align-items:center; gap:10px;
@@ -277,10 +279,11 @@ nav {
   width:34px; height:34px; border-radius:50%; background:var(--border);
   border:2px solid var(--border2); display:flex; align-items:center; justify-content:center;
   font-family:var(--font-display); font-size:11px; font-weight:700; color:var(--purple); flex-shrink:0;
+  overflow:hidden;
 }
+.av img { width:100%; height:100%; object-fit:cover; }
 .av.g1{border-color:var(--gold)} .av.g2{border-color:var(--silver)} .av.g3{border-color:var(--bronze)}
 .pname { font-size:14px; font-weight:700; color:#eee; }
-.pbadge { font-size:9px; padding:2px 7px; border-radius:2px; background:rgba(192,132,252,0.12); color:var(--purple); letter-spacing:1px; margin-left:6px; }
 .flag{font-size:16px}
 .lvl { padding:3px 10px; border-radius:2px; background:rgba(192,132,252,0.08); color:var(--purple); font-size:11px; font-family:var(--font-display); }
 .score { font-family:var(--font-display); font-size:14px; font-weight:700; color:#fff; }
@@ -305,11 +308,6 @@ nav {
   overflow:hidden;
 }
 .modal-overlay.open .modal { transform:translateY(0); }
-.modal-left {
-  background:linear-gradient(135deg,rgba(124,58,237,0.3) 0%,rgba(13,13,26,0) 100%);
-  border-right:1px solid var(--border);
-  padding:32px 28px;
-}
 .modal-body { padding:32px 28px; }
 .modal-tabs { display:flex; background:var(--bg); border-radius:6px; padding:3px; margin-bottom:24px; border:1px solid var(--border); }
 .mtab {
@@ -338,6 +336,7 @@ nav {
   letter-spacing:2px; cursor:pointer; transition:all .2s; margin-bottom:10px;
 }
 .modal-btn:hover { background:var(--purple2); }
+.modal-btn:disabled { opacity:0.5; cursor:not-allowed; }
 .modal-btn-sec {
   width:100%; padding:11px; background:transparent; border:1px solid var(--border);
   border-radius:6px; color:var(--muted); font-family:var(--font-mono); font-size:11px;
@@ -352,7 +351,7 @@ nav {
 }
 .modal-close:hover { color:#fff; background:rgba(255,255,255,0.05); }
 
-/* user profile dropdown */
+/* ── USER MENU DROPDOWN ── */
 .user-menu {
   position:absolute; top:72px; right:48px;
   background:var(--panel); border:1px solid var(--border2); border-radius:8px;
@@ -362,6 +361,15 @@ nav {
 }
 .user-menu.open { opacity:1; pointer-events:all; transform:translateY(0); }
 .user-menu-header { padding:12px 12px 8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+.user-menu-av-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.user-menu-big-av {
+  width:36px; height:36px; border-radius:50%;
+  background:var(--purple3); border:2px solid var(--purple);
+  overflow:hidden; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:12px; font-weight:700; color:#fff;
+}
+.user-menu-big-av img { width:100%; height:100%; object-fit:cover; }
 .user-menu-name { font-size:13px; font-weight:700; color:var(--purple); }
 .user-menu-email { font-size:11px; color:var(--muted); margin-top:2px; }
 .user-menu-item {
@@ -372,6 +380,148 @@ nav {
 .user-menu-item:hover { background:rgba(192,132,252,0.08); color:var(--purple); }
 .user-menu-item.danger { color:var(--red); }
 .user-menu-item.danger:hover { background:rgba(248,113,113,0.08); }
+
+/* ── PROFILE SETTINGS MODAL ── */
+.profile-modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.85);
+  z-index:9999; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .3s;
+  backdrop-filter:blur(10px);
+}
+.profile-modal-overlay.open { opacity:1; pointer-events:all; }
+.profile-modal {
+  background:var(--panel); border:1px solid var(--border2);
+  border-radius:12px; width:100%; max-width:520px; margin:16px;
+  transform:translateY(24px) scale(0.98); transition:transform .3s;
+  overflow:hidden; position:relative;
+}
+.profile-modal-overlay.open .profile-modal { transform:translateY(0) scale(1); }
+.profile-modal-header {
+  padding:24px 28px 20px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg, rgba(124,58,237,0.15) 0%, transparent 100%);
+  display:flex; align-items:center; gap:16px;
+}
+.profile-modal-icon {
+  width:44px; height:44px; border-radius:10px;
+  background:rgba(192,132,252,0.15); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px;
+}
+.profile-modal-header-text h2 {
+  font-family:var(--font-display); font-size:16px; font-weight:700; color:#fff;
+  letter-spacing:1px;
+}
+.profile-modal-header-text p { font-size:11px; color:var(--muted); margin-top:2px; letter-spacing:1px; }
+.profile-modal-body { padding:28px; }
+.profile-modal-close {
+  position:absolute; top:16px; right:16px; background:none;
+  border:none; color:var(--muted); font-size:20px; cursor:pointer;
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  border-radius:4px; transition:all .2s;
+}
+.profile-modal-close:hover { color:#fff; background:rgba(255,255,255,0.05); }
+
+/* Avatar upload area */
+.avatar-section {
+  display:flex; align-items:center; gap:20px;
+  padding:20px; background:var(--bg); border:1px solid var(--border);
+  border-radius:8px; margin-bottom:20px;
+}
+.avatar-preview {
+  width:72px; height:72px; border-radius:50%;
+  background:var(--purple3); border:3px solid var(--border2);
+  overflow:hidden; flex-shrink:0; position:relative;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:22px; font-weight:700; color:#fff;
+  cursor:pointer; transition:border-color .2s;
+}
+.avatar-preview:hover { border-color:var(--purple); }
+.avatar-preview img { width:100%; height:100%; object-fit:cover; }
+.avatar-preview-overlay {
+  position:absolute; inset:0; background:rgba(0,0,0,0.6);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; opacity:0; transition:opacity .2s; border-radius:50%;
+}
+.avatar-preview:hover .avatar-preview-overlay { opacity:1; }
+.avatar-info h4 { font-size:13px; color:#fff; margin-bottom:4px; }
+.avatar-info p { font-size:11px; color:var(--muted); line-height:1.6; }
+.avatar-btns { display:flex; gap:8px; margin-top:10px; }
+.avatar-btn {
+  padding:6px 14px; font-size:10px; letter-spacing:1px;
+  border-radius:4px; cursor:pointer; font-family:var(--font-mono); transition:all .2s;
+}
+.avatar-btn-upload {
+  background:rgba(192,132,252,0.1); border:1px solid var(--border2);
+  color:var(--purple);
+}
+.avatar-btn-upload:hover { border-color:var(--purple); background:rgba(192,132,252,0.2); }
+.avatar-btn-remove {
+  background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3);
+  color:var(--red);
+}
+.avatar-btn-remove:hover { background:rgba(248,113,113,0.15); }
+#avatar-file-input { display:none; }
+
+.avatar-upload-progress {
+  margin-top:8px; height:3px; background:var(--border);
+  border-radius:2px; overflow:hidden; display:none;
+}
+.avatar-upload-bar {
+  height:100%; background:var(--purple); width:0%;
+  transition:width .3s ease; border-radius:2px;
+}
+
+/* Username section */
+.username-section { margin-bottom:20px; }
+.username-section label {
+  display:block; font-size:10px; color:var(--muted);
+  letter-spacing:2px; margin-bottom:8px;
+}
+.username-input-row { display:flex; gap:8px; }
+.username-input-row input {
+  flex:1; background:var(--bg); border:1px solid var(--border);
+  border-radius:6px; padding:11px 14px; color:#fff;
+  font-family:var(--font-mono); font-size:13px; outline:none;
+  transition:border .2s;
+}
+.username-input-row input:focus { border-color:var(--purple); }
+.username-check {
+  width:42px; height:42px; border:1px solid var(--border);
+  border-radius:6px; background:var(--bg); display:flex;
+  align-items:center; justify-content:center; font-size:16px;
+  cursor:pointer; transition:all .2s; flex-shrink:0;
+}
+.username-check:hover { border-color:var(--purple); }
+.username-hint { font-size:11px; color:var(--muted); margin-top:6px; }
+.username-hint.ok { color:var(--green); }
+.username-hint.err { color:var(--red); }
+
+/* Country section */
+.country-section { margin-bottom:24px; }
+.country-section label {
+  display:block; font-size:10px; color:var(--muted);
+  letter-spacing:2px; margin-bottom:8px;
+}
+.country-section select {
+  width:100%; background:var(--bg); border:1px solid var(--border);
+  border-radius:6px; padding:11px 14px; color:#fff;
+  font-family:var(--font-mono); font-size:13px; outline:none;
+  transition:border .2s; cursor:pointer;
+}
+.country-section select:focus { border-color:var(--purple); }
+.country-section select option { background:var(--panel); }
+
+.profile-save-btn {
+  width:100%; padding:13px; background:var(--purple3); border:1px solid var(--purple);
+  border-radius:6px; color:#fff; font-family:var(--font-mono); font-size:13px;
+  letter-spacing:2px; cursor:pointer; transition:all .2s;
+}
+.profile-save-btn:hover { background:var(--purple2); }
+.profile-save-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.profile-msg { font-size:12px; margin-top:12px; min-height:18px; text-align:center; letter-spacing:1px; }
+.profile-msg.ok { color:var(--green); }
+.profile-msg.err { color:var(--red); }
 
 /* ── FOOTER ── */
 footer {
@@ -400,6 +550,8 @@ footer {
   .lb-table thead th:nth-child(6),.lb-table tbody td:nth-child(6){display:none}
   footer{padding:20px 16px}
   .user-menu{right:16px}
+  .profile-modal-body{padding:20px}
+  .avatar-section{flex-direction:column;text-align:center}
 }
 </style>
 </head>
@@ -429,10 +581,16 @@ footer {
 <!-- USER MENU DROPDOWN -->
 <div class="user-menu" id="user-menu">
   <div class="user-menu-header">
-    <div class="user-menu-name" id="um-name">—</div>
-    <div class="user-menu-email" id="um-email">—</div>
+    <div class="user-menu-av-row">
+      <div class="user-menu-big-av" id="um-big-av">—</div>
+      <div>
+        <div class="user-menu-name" id="um-name">—</div>
+        <div class="user-menu-email" id="um-email">—</div>
+      </div>
+    </div>
   </div>
-  <div class="user-menu-item" onclick="showPage('online',document.querySelectorAll('.nav-links a')[1])">⚡ LEADERBOARD</div>
+  <div class="user-menu-item" onclick="showPage('online',document.querySelectorAll('.nav-links a')[1]);closeUserMenu()">⚡ LEADERBOARD</div>
+  <div class="user-menu-item" onclick="openProfileSettings()">⚙ PROFILE SETTINGS</div>
   <div class="user-menu-item danger" onclick="signOut()">↩ SIGN OUT</div>
 </div>
 
@@ -481,6 +639,72 @@ footer {
         <div class="modal-ok"  id="r-ok"></div>
         <button class="modal-btn" onclick="doRegister()">CREATE ACCOUNT</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROFILE SETTINGS MODAL ══ -->
+<div class="profile-modal-overlay" id="profile-modal-overlay" onclick="closeProfileOutside(event)">
+  <div class="profile-modal" id="profile-modal">
+    <button class="profile-modal-close" onclick="closeProfileSettings()">✕</button>
+    <div class="profile-modal-header">
+      <div class="profile-modal-icon">⚙</div>
+      <div class="profile-modal-header-text">
+        <h2>PROFILE SETTINGS</h2>
+        <p>Update your username, avatar & country</p>
+      </div>
+    </div>
+    <div class="profile-modal-body">
+
+      <!-- Avatar Upload -->
+      <div class="avatar-section">
+        <div class="avatar-preview" id="ps-av-preview" onclick="document.getElementById('avatar-file-input').click()">
+          <span id="ps-av-initials">?</span>
+          <div class="avatar-preview-overlay">📷</div>
+        </div>
+        <div class="avatar-info">
+          <h4>Profile Picture</h4>
+          <p>PNG, JPG or GIF — max 2MB<br>Click the avatar or use buttons below</p>
+          <div class="avatar-btns">
+            <button class="avatar-btn avatar-btn-upload" onclick="document.getElementById('avatar-file-input').click()">📁 UPLOAD</button>
+            <button class="avatar-btn avatar-btn-remove" id="ps-remove-av-btn" onclick="removeAvatar()" style="display:none">✕ REMOVE</button>
+          </div>
+          <div class="avatar-upload-progress" id="av-progress-wrap">
+            <div class="avatar-upload-bar" id="av-progress-bar"></div>
+          </div>
+          <div id="av-upload-msg" style="font-size:11px;margin-top:6px;min-height:16px;"></div>
+        </div>
+      </div>
+      <input type="file" id="avatar-file-input" accept="image/png,image/jpeg,image/gif,image/webp" onchange="handleAvatarFile(event)">
+
+      <!-- Username -->
+      <div class="username-section">
+        <label>USERNAME</label>
+        <div class="username-input-row">
+          <input type="text" id="ps-username" placeholder="new username..." maxlength="20" oninput="onUsernameInput()">
+          <div class="username-check" onclick="checkUsernameAvail()" title="Check availability">🔍</div>
+        </div>
+        <div class="username-hint" id="ps-username-hint">Min. 4 characters — letters, numbers, underscores only</div>
+      </div>
+
+      <!-- Country -->
+      <div class="country-section">
+        <label>COUNTRY</label>
+        <select id="ps-country">
+          <option value="Turkey">🇹🇷 Turkey</option>
+          <option value="United States">🇺🇸 United States</option>
+          <option value="United Kingdom">🇬🇧 United Kingdom</option>
+          <option value="Germany">🇩🇪 Germany</option>
+          <option value="France">🇫🇷 France</option>
+          <option value="Japan">🇯🇵 Japan</option>
+          <option value="Brazil">🇧🇷 Brazil</option>
+          <option value="Russia">🇷🇺 Russia</option>
+          <option value="Other">🌍 Other</option>
+        </select>
+      </div>
+
+      <button class="profile-save-btn" id="ps-save-btn" onclick="saveProfile()">SAVE CHANGES</button>
+      <div class="profile-msg" id="ps-msg"></div>
     </div>
   </div>
 </div>
@@ -715,10 +939,29 @@ footer {
 <script>
 const SB_URL = "https://ubhglndbbzidunjgnpqi.supabase.co";
 const SB_KEY = "sb_publishable_xShtsNZot0C3cIDqj3s2Ew_V3zJs_1k";
+const AVATAR_BUCKET = "avatars"; // Supabase storage bucket adı
 const FLAGS  = {"Turkey":"🇹🇷","United States":"🇺🇸","United Kingdom":"🇬🇧","Germany":"🇩🇪","France":"🇫🇷","Japan":"🇯🇵","Brazil":"🇧🇷","Russia":"🇷🇺","Other":"🌍"};
 const BADWORDS = ["fuck","shit","ass","bitch","dick","cunt","nigga","nigger","faggot","retard","sik","orospu","piç","amk","yarrak","ibne","pezevenk"];
 
 var allData=[], lbLoaded=false, currentUser=null;
+// pendingAvatarFile: seçilen ama henüz yüklenmeyen dosya
+var pendingAvatarFile = null;
+var pendingAvatarDataURL = null;
+// avatarToRemove: kaydet butonuna basınca eski avatar silinecek mi?
+var avatarToRemove = null;
+
+// ── HELPERS ──
+function sbFetch(path, opts={}) {
+  const headers = { apikey: SB_KEY, 'Content-Type': 'application/json', ...(opts.headers||{}) };
+  const token = localStorage.getItem('peu_token');
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  return fetch(SB_URL + path, { ...opts, headers });
+}
+
+function getAvatarUrl(userId, filename) {
+  if (!filename) return null;
+  return `${SB_URL}/storage/v1/object/public/${AVATAR_BUCKET}/${userId}/${filename}`;
+}
 
 // ── PAGE NAV ──
 function showPage(id, el) {
@@ -765,26 +1008,44 @@ function switchTab(t) {
 }
 
 // ── USER MENU ──
-function toggleUserMenu() {
-  document.getElementById('user-menu').classList.toggle('open');
-}
-function closeUserMenu() {
-  document.getElementById('user-menu').classList.remove('open');
-}
+function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('open'); }
+function closeUserMenu() { document.getElementById('user-menu').classList.remove('open'); }
 document.addEventListener('click', e => {
   const pill = document.querySelector('.nav-user-pill');
   const menu = document.getElementById('user-menu');
   if (pill && !pill.contains(e.target) && !menu.contains(e.target)) closeUserMenu();
 });
 
-function setLoggedIn(username, email) {
-  currentUser = {username, email};
+// Avatar HTML helper — returns img tag or initials
+function avatarHtml(avatarUrl, username, size) {
+  const initials = (username||'?').substring(0,2).toUpperCase();
+  if (avatarUrl) {
+    return `<img src="${avatarUrl}" alt="${initials}" onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+            <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">${initials}</span>`;
+  }
+  return initials;
+}
+
+function setLoggedIn(username, email, avatarUrl) {
+  currentUser = {username, email, avatarUrl: avatarUrl||null};
+  const initials = username.substring(0,2).toUpperCase();
+  const pillInner = avatarUrl
+    ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.outerHTML='${initials}'">`
+    : initials;
+
   document.getElementById('nav-auth-area').innerHTML = `
     <div class="nav-user-pill" onclick="toggleUserMenu()">
-      <div class="nav-user-av">${username.substring(0,2).toUpperCase()}</div>
+      <div class="nav-user-av">${pillInner}</div>
       <span class="nav-user-name">${username}</span>
       <span style="color:var(--muted);font-size:10px">▾</span>
     </div>`;
+
+  // User menu header
+  const bigAvEl = document.getElementById('um-big-av');
+  bigAvEl.innerHTML = avatarUrl
+    ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.outerHTML='${initials}'">`
+    : initials;
+
   document.getElementById('um-name').textContent  = username;
   document.getElementById('um-email').textContent = email;
 }
@@ -794,6 +1055,8 @@ function signOut() {
   localStorage.removeItem('peu_token');
   localStorage.removeItem('peu_user');
   localStorage.removeItem('peu_email');
+  localStorage.removeItem('peu_avatar');
+  localStorage.removeItem('peu_uid');
   document.getElementById('nav-auth-area').innerHTML = `
     <button class="nav-auth-btn" onclick="openModal('login')">SIGN IN</button>
     <button class="nav-auth-btn" style="background:rgba(192,132,252,0.1);border-color:var(--purple);color:var(--purple)" onclick="openModal('register')">REGISTER</button>`;
@@ -808,14 +1071,15 @@ async function doLogin() {
   if (!user||!pass) { errEl.textContent='Fill in all fields.'; return; }
   errEl.textContent = 'Signing in...';
 
-  // Get email from profiles
   try {
-    const pr = await fetch(`${SB_URL}/rest/v1/profiles?select=email&username=eq.${encodeURIComponent(user)}`, {
-      headers:{apikey:SB_KEY,Accept:'application/json'}
+    const pr = await fetch(`${SB_URL}/rest/v1/profiles?select=email,avatar_url,id&username=eq.${encodeURIComponent(user)}`, {
+      headers:{apikey:SB_KEY, Accept:'application/json'}
     });
     const pd = await pr.json();
     if (!pd.length||!pd[0].email) { errEl.textContent='User not found.'; return; }
     const email = pd[0].email;
+    const avatarFilename = pd[0].avatar_url || null;
+    const uid = pd[0].id;
 
     const lr = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
       method:'POST',
@@ -824,10 +1088,13 @@ async function doLogin() {
     });
     const ld = await lr.json();
     if (ld.access_token) {
+      const avatarUrl = avatarFilename ? getAvatarUrl(uid, avatarFilename) : null;
       localStorage.setItem('peu_token', ld.access_token);
       localStorage.setItem('peu_user',  user);
       localStorage.setItem('peu_email', email);
-      setLoggedIn(user, email);
+      localStorage.setItem('peu_uid',   uid || ld.user?.id || '');
+      if (avatarUrl) localStorage.setItem('peu_avatar', avatarUrl);
+      setLoggedIn(user, email, avatarUrl);
       closeModal();
       errEl.textContent='';
     } else {
@@ -878,7 +1145,8 @@ async function doRegister() {
         localStorage.setItem('peu_token', d.access_token);
         localStorage.setItem('peu_user',  user);
         localStorage.setItem('peu_email', email);
-        setLoggedIn(user, email);
+        localStorage.setItem('peu_uid',   d.user?.id || d.id || '');
+        setLoggedIn(user, email, null);
         setTimeout(closeModal, 1200);
       } else {
         setTimeout(()=>switchTab('login'),1500);
@@ -888,6 +1156,334 @@ async function doRegister() {
       errEl.textContent = msg.includes('already registered')?'This email is already registered.':msg;
     }
   } catch(e) { errEl.textContent='Connection error.'; }
+}
+
+// ═══════════════════════════════════════════════════
+// ── PROFILE SETTINGS ──
+// ═══════════════════════════════════════════════════
+
+function openProfileSettings() {
+  if (!currentUser) { openModal('login'); return; }
+  closeUserMenu();
+
+  // Reset state
+  pendingAvatarFile = null;
+  pendingAvatarDataURL = null;
+  avatarToRemove = null;
+  document.getElementById('ps-msg').textContent = '';
+  document.getElementById('av-upload-msg').textContent = '';
+  document.getElementById('av-progress-wrap').style.display = 'none';
+  document.getElementById('av-progress-bar').style.width = '0%';
+
+  // Pre-fill username
+  document.getElementById('ps-username').value = currentUser.username || '';
+  document.getElementById('ps-username-hint').textContent = 'Min. 4 characters — letters, numbers, underscores only';
+  document.getElementById('ps-username-hint').className = 'username-hint';
+
+  // Pre-fill avatar preview
+  const prevEl = document.getElementById('ps-av-preview');
+  const initials = (currentUser.username||'?').substring(0,2).toUpperCase();
+  document.getElementById('ps-av-initials').textContent = '';
+  if (currentUser.avatarUrl) {
+    prevEl.innerHTML = `<img src="${currentUser.avatarUrl}" alt="${initials}" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML='<span>${initials}</span>'">
+      <div class="avatar-preview-overlay">📷</div>`;
+    document.getElementById('ps-remove-av-btn').style.display = 'inline-flex';
+  } else {
+    prevEl.innerHTML = `<span id="ps-av-initials">${initials}</span><div class="avatar-preview-overlay">📷</div>`;
+    document.getElementById('ps-remove-av-btn').style.display = 'none';
+  }
+
+  // Pre-fill country (fetch from profile if possible)
+  fetchCurrentCountry();
+
+  document.getElementById('profile-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+async function fetchCurrentCountry() {
+  const uid = localStorage.getItem('peu_uid');
+  if (!uid) return;
+  try {
+    const r = await sbFetch(`/rest/v1/profiles?select=country&id=eq.${uid}`, {headers:{Accept:'application/json'}});
+    const d = await r.json();
+    if (d.length && d[0].country) {
+      const sel = document.getElementById('ps-country');
+      sel.value = d[0].country;
+    }
+  } catch(e) {}
+}
+
+function closeProfileSettings() {
+  document.getElementById('profile-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  pendingAvatarFile = null;
+  pendingAvatarDataURL = null;
+  avatarToRemove = null;
+  document.getElementById('avatar-file-input').value = '';
+}
+
+function closeProfileOutside(e) {
+  if (e.target === document.getElementById('profile-modal-overlay')) closeProfileSettings();
+}
+
+// ── Avatar File Selection ──
+function handleAvatarFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Validate
+  if (!['image/png','image/jpeg','image/gif','image/webp'].includes(file.type)) {
+    setAvMsg('Only PNG, JPG, GIF or WEBP allowed.', true);
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    setAvMsg('File too large — max 2MB.', true);
+    return;
+  }
+
+  pendingAvatarFile = file;
+  avatarToRemove = null; // if they had marked for removal, clear it
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    pendingAvatarDataURL = ev.target.result;
+    const initials = (currentUser.username||'?').substring(0,2).toUpperCase();
+    const prevEl = document.getElementById('ps-av-preview');
+    prevEl.innerHTML = `<img src="${pendingAvatarDataURL}" style="width:100%;height:100%;object-fit:cover">
+      <div class="avatar-preview-overlay">📷</div>`;
+    document.getElementById('ps-remove-av-btn').style.display = 'inline-flex';
+    setAvMsg('Image ready — click Save Changes to upload.', false);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeAvatar() {
+  const initials = (currentUser.username||'?').substring(0,2).toUpperCase();
+  // Mark old avatar for deletion on save
+  if (currentUser.avatarUrl) avatarToRemove = currentUser.avatarUrl;
+  pendingAvatarFile = null;
+  pendingAvatarDataURL = null;
+
+  const prevEl = document.getElementById('ps-av-preview');
+  prevEl.innerHTML = `<span id="ps-av-initials">${initials}</span><div class="avatar-preview-overlay">📷</div>`;
+  document.getElementById('ps-remove-av-btn').style.display = 'none';
+  setAvMsg('Avatar will be removed on save.', false);
+}
+
+function setAvMsg(msg, isErr) {
+  const el = document.getElementById('av-upload-msg');
+  el.textContent = msg;
+  el.style.color = isErr ? 'var(--red)' : 'var(--green)';
+}
+
+// ── Username availability check ──
+function onUsernameInput() {
+  const el = document.getElementById('ps-username-hint');
+  el.textContent = 'Min. 4 characters — letters, numbers, underscores only';
+  el.className = 'username-hint';
+}
+
+async function checkUsernameAvail() {
+  const val = document.getElementById('ps-username').value.trim();
+  const hint = document.getElementById('ps-username-hint');
+  if (val.length < 4) { hint.textContent = 'Too short.'; hint.className='username-hint err'; return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(val)) { hint.textContent='Only letters, numbers, underscores.'; hint.className='username-hint err'; return; }
+  if (val === currentUser.username) { hint.textContent='This is your current username.'; hint.className='username-hint'; return; }
+  hint.textContent = 'Checking...'; hint.className='username-hint';
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/profiles?select=username&username=eq.${encodeURIComponent(val)}`,{headers:{apikey:SB_KEY,Accept:'application/json'}});
+    const d = await r.json();
+    if (d.length) { hint.textContent='Username already taken.'; hint.className='username-hint err'; }
+    else { hint.textContent='✓ Username available!'; hint.className='username-hint ok'; }
+  } catch(e) { hint.textContent='Check failed.'; hint.className='username-hint err'; }
+}
+
+// ── Upload Avatar to Supabase Storage ──
+async function uploadAvatarToStorage(uid, file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const filename = `avatar_${Date.now()}.${ext}`;
+  const path = `${uid}/${filename}`;
+
+  // Show progress
+  document.getElementById('av-progress-wrap').style.display = 'block';
+  document.getElementById('av-progress-bar').style.width = '30%';
+
+  const token = localStorage.getItem('peu_token');
+  const headers = {
+    apikey: SB_KEY,
+    'Content-Type': file.type,
+  };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+
+  const r = await fetch(`${SB_URL}/storage/v1/object/${AVATAR_BUCKET}/${path}`, {
+    method: 'POST',
+    headers,
+    body: file,
+  });
+
+  document.getElementById('av-progress-bar').style.width = '100%';
+  setTimeout(() => { document.getElementById('av-progress-wrap').style.display = 'none'; }, 600);
+
+  if (!r.ok) {
+    const err = await r.json().catch(()=>({}));
+    throw new Error(err.message || 'Upload failed');
+  }
+  return filename; // return just the filename, we store path as uid/filename
+}
+
+// ── Delete old avatar from Supabase Storage ──
+async function deleteOldAvatar(uid, oldAvatarUrl) {
+  if (!oldAvatarUrl) return;
+  // Extract filename from URL: .../avatars/uid/filename
+  const parts = oldAvatarUrl.split(`/${AVATAR_BUCKET}/${uid}/`);
+  if (parts.length < 2) return;
+  const filename = parts[1].split('?')[0]; // strip cache busters
+  const path = `${uid}/${filename}`;
+  const token = localStorage.getItem('peu_token');
+  const headers = { apikey: SB_KEY, 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  try {
+    await fetch(`${SB_URL}/storage/v1/object/${AVATAR_BUCKET}/${path}`, {
+      method: 'DELETE', headers
+    });
+  } catch(e) {
+    // Non-fatal: old avatar deletion failed, continue anyway
+    console.warn('Old avatar deletion failed:', e);
+  }
+}
+
+// ── Save Profile ──
+async function saveProfile() {
+  const uid = localStorage.getItem('peu_uid');
+  if (!uid) { setProfileMsg('Session error — please re-login.', true); return; }
+
+  const newUsername = document.getElementById('ps-username').value.trim();
+  const newCountry  = document.getElementById('ps-country').value;
+  const hint = document.getElementById('ps-username-hint');
+  const saveBtn = document.getElementById('ps-save-btn');
+
+  // Validate username
+  if (newUsername.length < 4) { hint.textContent='Min. 4 characters.'; hint.className='username-hint err'; return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) { hint.textContent='Only letters, numbers, underscores.'; hint.className='username-hint err'; return; }
+  if (BADWORDS.some(w=>newUsername.toLowerCase().includes(w))) { hint.textContent='Inappropriate username.'; hint.className='username-hint err'; return; }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'SAVING...';
+  setProfileMsg('', false);
+
+  try {
+    let newAvatarFilename = null;
+    let oldAvatarUrl = currentUser.avatarUrl || null;
+
+    // 1. Handle avatar
+    if (pendingAvatarFile) {
+      // Upload new avatar first
+      setAvMsg('Uploading...', false);
+      newAvatarFilename = await uploadAvatarToStorage(uid, pendingAvatarFile);
+      setAvMsg('Uploaded!', false);
+
+      // Delete old avatar if exists
+      if (oldAvatarUrl) {
+        await deleteOldAvatar(uid, oldAvatarUrl);
+      }
+    } else if (avatarToRemove) {
+      // User wants to remove avatar
+      await deleteOldAvatar(uid, avatarToRemove);
+      newAvatarFilename = ''; // empty string = no avatar
+    }
+
+    // 2. Build profile update payload
+    const updates = { country: newCountry };
+
+    // Username changed?
+    if (newUsername !== currentUser.username) {
+      // Check uniqueness
+      const check = await fetch(`${SB_URL}/rest/v1/profiles?select=username&username=eq.${encodeURIComponent(newUsername)}&id=neq.${uid}`,
+        {headers:{apikey:SB_KEY,Accept:'application/json'}});
+      const chkd = await check.json();
+      if (chkd.length) {
+        hint.textContent = 'Username already taken.';
+        hint.className = 'username-hint err';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'SAVE CHANGES';
+        return;
+      }
+      updates.username = newUsername;
+    }
+
+    if (pendingAvatarFile && newAvatarFilename) {
+      updates.avatar_url = newAvatarFilename;
+    } else if (avatarToRemove) {
+      updates.avatar_url = null;
+    }
+
+    // 3. Update profiles table
+    const token = localStorage.getItem('peu_token');
+    const headers = {
+      apikey: SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    const r = await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${uid}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(updates)
+    });
+
+    if (!r.ok) {
+      const err = await r.json().catch(()=>({}));
+      throw new Error(err.message || 'Update failed');
+    }
+
+    // 4. Update local state
+    if (updates.username) {
+      currentUser.username = updates.username;
+      localStorage.setItem('peu_user', updates.username);
+    }
+
+    if (pendingAvatarFile && newAvatarFilename) {
+      const newUrl = getAvatarUrl(uid, newAvatarFilename);
+      currentUser.avatarUrl = newUrl;
+      localStorage.setItem('peu_avatar', newUrl);
+    } else if (avatarToRemove) {
+      currentUser.avatarUrl = null;
+      localStorage.removeItem('peu_avatar');
+    }
+
+    // 5. Re-render nav pill
+    setLoggedIn(currentUser.username, currentUser.email, currentUser.avatarUrl);
+
+    setProfileMsg('✓ Profile updated successfully!', false);
+    pendingAvatarFile = null;
+    pendingAvatarDataURL = null;
+    avatarToRemove = null;
+    document.getElementById('avatar-file-input').value = '';
+
+    // Update remove button visibility
+    if (currentUser.avatarUrl) {
+      document.getElementById('ps-remove-av-btn').style.display = 'inline-flex';
+    } else {
+      document.getElementById('ps-remove-av-btn').style.display = 'none';
+    }
+
+    setTimeout(() => {
+      closeProfileSettings();
+    }, 1500);
+
+  } catch(e) {
+    setProfileMsg('Error: ' + e.message, true);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'SAVE CHANGES';
+  }
+}
+
+function setProfileMsg(msg, isErr) {
+  const el = document.getElementById('ps-msg');
+  el.textContent = msg;
+  el.className = 'profile-msg ' + (isErr ? 'err' : 'ok');
 }
 
 // ── LEADERBOARD ──
@@ -926,11 +1522,18 @@ function renderPodium(data) {
     const init=(p.username||'?').substring(0,2).toUpperCase();
     const flag=FLAGS[p.country]||'🌍';
     const acc=(p.best_accuracy||0).toFixed(1);
-    document.getElementById('pod'+n+'-av').textContent=init;
+    const avEl = document.getElementById('pod'+n+'-av');
+    // Check if player has avatar_url
+    if (p.avatar_url && p.id) {
+      const url = getAvatarUrl(p.id, p.avatar_url);
+      avEl.innerHTML = `<img src="${url}" alt="${init}" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML='${init}'">`;
+    } else {
+      avEl.textContent = init;
+    }
     document.getElementById('pod'+n+'-name').textContent=p.username||'Unknown';
     document.getElementById('pod'+n+'-flag').textContent=flag;
     document.getElementById('pod'+n+'-score').textContent=(p.total_score||0).toLocaleString()+' PTS';
-    document.getElementById('pod'+n+'-meta').textContent='Lv.'+( p.level||1)+' • '+acc+'% BEST ACC';
+    document.getElementById('pod'+n+'-meta').textContent='Lv.'+(p.level||1)+' • '+acc+'% BEST ACC';
   };
   fill(1, data[0]);
   fill(2, data[1]||null);
@@ -953,9 +1556,12 @@ function renderTable(data) {
     const flag=FLAGS[p.country]||'🌍';
     const acc=(p.best_accuracy||0).toFixed(1);
     const accCls=acc>=99?'acc-ss':acc>=95?'acc-s':acc>=85?'acc-a':acc>=70?'acc-b':'acc-c';
+    const avHtml = (p.avatar_url && p.id)
+      ? `<img src="${getAvatarUrl(p.id, p.avatar_url)}" alt="${init}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.outerHTML='${init}'">`
+      : init;
     return `<tr>
       <td><span class="rank-cell rank-other">${pos}</span></td>
-      <td><div class="player-cell"><div class="av">${init}</div><div><span class="pname">${p.username||'Unknown'}</span></div></div></td>
+      <td><div class="player-cell"><div class="av">${avHtml}</div><div><span class="pname">${p.username||'Unknown'}</span></div></div></td>
       <td><span class="flag">${flag}</span></td>
       <td><span class="lvl">Lv.${p.level||1}</span></td>
       <td><span class="score">${(p.total_score||0).toLocaleString()}</span></td>
@@ -974,8 +1580,6 @@ async function loadHeroStats() {
       document.getElementById('activePlayers').textContent = d.length.toLocaleString();
     }
   } catch(e) {}
-  // Downloads — statik değer, Supabase'de "stats" tablon varsa oradan çek
-  // Şimdilik GitHub releases sayısını göster
   document.getElementById('totalDownloads').textContent = '—';
 }
 
@@ -984,14 +1588,14 @@ async function loadHeroStats() {
   const token = localStorage.getItem('peu_token');
   const user  = localStorage.getItem('peu_user');
   const email = localStorage.getItem('peu_email');
-  if (token && user) setLoggedIn(user, email||'');
+  const avatar = localStorage.getItem('peu_avatar');
+  if (token && user) setLoggedIn(user, email||'', avatar||null);
 })();
 
 // ── INIT ──
 loadHeroStats();
 setInterval(()=>{ if(lbLoaded) fetchLB(); }, 30000);
 
-// page transition on first load
 requestAnimationFrame(()=>requestAnimationFrame(()=>{
   document.getElementById('page-home').classList.add('visible');
 }));
