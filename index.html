@@ -1063,44 +1063,37 @@ function signOut() {
   closeUserMenu();
 }
 
-// ── LOGIN ──
 async function doLogin() {
   const user = document.getElementById('l-user').value.trim();
   const pass = document.getElementById('l-pass').value;
-  const errEl = document.getElementById('l-err');
-  if (!user||!pass) { errEl.textContent='Fill in all fields.'; return; }
-  errEl.textContent = 'Signing in...';
+  const err = document.getElementById('l-err');
+  
+  if(!user || !pass) return;
+  err.textContent = "";
 
   try {
-    const pr = await fetch(`${SB_URL}/rest/v1/profiles?select=email,avatar_url,id&username=eq.${encodeURIComponent(user)}`, {
-      headers:{apikey:SB_KEY, Accept:'application/json'}
+    const { data: emailData, error: emailError } = await supabase.rpc('get_email_from_username', {
+      username_input: user
     });
-    const pd = await pr.json();
-    if (!pd.length||!pd[0].email) { errEl.textContent='User not found.'; return; }
-    const email = pd[0].email;
-    const avatarFilename = pd[0].avatar_url || null;
-    const uid = pd[0].id;
 
-    const lr = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
-      method:'POST',
-      headers:{apikey:SB_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({email,password:pass,grant_type:'password'})
-    });
-    const ld = await lr.json();
-    if (ld.access_token) {
-      const avatarUrl = avatarFilename ? getAvatarUrl(uid, avatarFilename) : null;
-      localStorage.setItem('peu_token', ld.access_token);
-      localStorage.setItem('peu_user',  user);
-      localStorage.setItem('peu_email', email);
-      localStorage.setItem('peu_uid',   uid || ld.user?.id || '');
-      if (avatarUrl) localStorage.setItem('peu_avatar', avatarUrl);
-      setLoggedIn(user, email, avatarUrl);
-      closeModal();
-      errEl.textContent='';
-    } else {
-      errEl.textContent = ld.error_description || ld.msg || 'Invalid credentials.';
+    if (emailError || !emailData) {
+        err.textContent = "Kullanıcı adı bulunamadı.";
+        return;
     }
-  } catch(e) { errEl.textContent='Connection error.'; }
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: emailData,
+      password: pass,
+    });
+
+    if(error) {
+      err.textContent = "Hatalı şifre veya giriş bilgisi.";
+    } else {
+      // Giriş başarılı...
+      location.reload(); 
+    }
+  } catch(e) {
+    err.textContent = "Sistem hatası oluştu.";
+  }
 }
 
 // ── FORGOT ──
