@@ -873,7 +873,7 @@ footer {
     <div class="lb-stats-row">
       <div class="lb-stat"><div class="num" id="lb-p">—</div><div class="lbl">PLAYERS</div></div>
       <div class="lb-stat"><div class="num" id="lb-s">—</div><div class="lbl">SONGS PLAYED</div></div>
-      <div class="lb-stat"><div class="num" id="lb-t">—</div><div class="lbl">TOP SCORE</div></div>
+      <div class="lb-stat"><div class="num" id="lb-t">—</div><div class="lbl">TOP ULTRA PTS</div></div>
       <div class="lb-stat"><div class="num" id="lb-upd">—</div><div class="lbl">LAST UPDATE</div></div>
     </div>
   </div>
@@ -919,7 +919,7 @@ footer {
   <div class="lb-wrap">
     <div id="lb-loading" class="state-msg"><div class="spinner"></div>LOADING...</div>
     <table class="lb-table" id="lb-table" style="display:none">
-      <thead><tr><th>#</th><th>PLAYER</th><th>COUNTRY</th><th>LEVEL</th><th>TOTAL SCORE</th><th>BEST ACC</th><th>SONGS</th></tr></thead>
+      <thead><tr><th>#</th><th>PLAYER</th><th>COUNTRY</th><th>LEVEL</th><th>ULTRA POINTS</th><th>BEST ACC</th><th>SONGS</th></tr></thead>
       <tbody id="lb-body"></tbody>
     </table>
     <div id="lb-empty" class="state-msg" style="display:none">NO PLAYERS YET</div>
@@ -1053,6 +1053,7 @@ function setLoggedIn(username, email, avatarUrl) {
 function signOut() {
   currentUser = null;
   localStorage.removeItem('peu_token');
+  localStorage.removeItem('peu_refresh');
   localStorage.removeItem('peu_user');
   localStorage.removeItem('peu_email');
   localStorage.removeItem('peu_avatar');
@@ -1063,36 +1064,91 @@ function signOut() {
   closeUserMenu();
 }
 
+// ── LOGIN ──
 async function doLogin() {
-  const user = document.getElementById('l-user').value.trim();
-  const pass = document.getElementById('l-pass').value;
-  const err = document.getElementById('l-err');
-  
-  if(!user || !pass) return;
-  err.textContent = "";
+  const user  = document.getElementById('l-user').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const errEl = document.getElementById('l-err');
+  if (!user || !pass) { errEl.textContent='Fill in all fields.'; return; }
+  errEl.textContent = 'Signing in...';
 
   try {
-    const { data: emailData, error: emailError } = await supabase.rpc('get_email_from_username', {
-      username_input: user
-    });
+    // ── 1. username → email via profiles table ──
+    let email = null, avatarFilename = null, uid = null;
 
-    if (emailError || !emailData) {
-        err.textContent = "Kullanıcı adı bulunamadı.";
+    // Önce RPC ile dene (SQL adım 6 çalıştırıldıysa çalışır)
+    try {
+      const rpcR = await fetch(`${SB_URL}/rest/v1/rpc/get_email_from_username`, {
+        method: 'POST',
+        headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username_input: user })
+      });
+      if (rpcR.ok) {
+        const rpcD = await rpcR.json();
+        if (typeof rpcD === 'string' && rpcD.includes('@')) email = rpcD;
+      }
+    } catch(_) {}
+
+    // RPC çalışmadıysa direkt REST sorgusu
+    if (!email) {
+      const pr = await fetch(
+        `${SB_URL}/rest/v1/profiles?select=email,avatar_url,id&username=eq.${encodeURIComponent(user)}`,
+        { headers: { apikey: SB_KEY, Accept: 'application/json' } }
+      );
+      const pd = await pr.json();
+      if (!Array.isArray(pd) || !pd.length || !pd[0].email) {
+        errEl.textContent = 'User not found. (Check your username or register first)';
         return;
+      }
+      email          = pd[0].email;
+      avatarFilename = pd[0].avatar_url || null;
+      uid            = pd[0].id || null;
     }
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: emailData,
-      password: pass,
-    });
 
-    if(error) {
-      err.textContent = "Hatalı şifre veya giriş bilgisi.";
-    } else {
-      // Giriş başarılı...
-      location.reload(); 
+    // ── 2. Supabase Auth password login ──
+    const lr = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass, grant_type: 'password' })
+    });
+    const ld = await lr.json();
+
+    if (!ld.access_token) {
+      errEl.textContent = ld.error_description || ld.msg || 'Wrong password.';
+      return;
     }
+
+    // ── 3. UID & avatar'ı tamamla ──
+    uid = uid || ld.user?.id || '';
+    if (!avatarFilename && uid) {
+      try {
+        const pr2 = await fetch(
+          `${SB_URL}/rest/v1/profiles?select=avatar_url&id=eq.${uid}`,
+          { headers: { apikey: SB_KEY, Accept: 'application/json',
+                       Authorization: 'Bearer ' + ld.access_token } }
+        );
+        const pd2 = await pr2.json();
+        avatarFilename = pd2?.[0]?.avatar_url || null;
+      } catch(_) {}
+    }
+
+    const avatarUrl = (avatarFilename && uid) ? getAvatarUrl(uid, avatarFilename) : null;
+
+    // ── 4. LocalStorage'a kaydet ──
+    localStorage.setItem('peu_token',   ld.access_token);
+    localStorage.setItem('peu_refresh', ld.refresh_token || '');
+    localStorage.setItem('peu_user',    user);
+    localStorage.setItem('peu_email',   email);
+    localStorage.setItem('peu_uid',     uid);
+    if (avatarUrl) localStorage.setItem('peu_avatar', avatarUrl);
+    else           localStorage.removeItem('peu_avatar');
+
+    setLoggedIn(user, email, avatarUrl);
+    closeModal();
+    errEl.textContent = '';
+
   } catch(e) {
-    err.textContent = "Sistem hatası oluştu.";
+    errEl.textContent = 'Connection error: ' + e.message;
   }
 }
 
@@ -1118,9 +1174,21 @@ async function doRegister() {
   errEl.textContent=''; okEl.textContent='';
 
   if (user.length<4)  { errEl.textContent='Username must be at least 4 characters.'; return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(user)) { errEl.textContent='Only letters, numbers and underscores allowed.'; return; }
   if (!email.includes('@')) { errEl.textContent='Invalid email address.'; return; }
   if (pass.length<6)  { errEl.textContent='Password must be at least 6 characters.'; return; }
   if (BADWORDS.some(w=>user.toLowerCase().includes(w))) { errEl.textContent='Username contains inappropriate words.'; return; }
+
+  errEl.textContent='Checking username...';
+  try {
+    const cr = await fetch(SB_URL + '/rest/v1/rpc/check_username_available', {
+      method: 'POST',
+      headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username_input: user })
+    });
+    const available = await cr.json();
+    if (!available) { errEl.textContent='Username already taken (case-insensitive).'; return; }
+  } catch(e) { errEl.textContent='Connection error during username check.'; return; }
 
   errEl.textContent='Creating account...';
 
@@ -1281,37 +1349,42 @@ async function checkUsernameAvail() {
   const hint = document.getElementById('ps-username-hint');
   if (val.length < 4) { hint.textContent = 'Too short.'; hint.className='username-hint err'; return; }
   if (!/^[a-zA-Z0-9_]+$/.test(val)) { hint.textContent='Only letters, numbers, underscores.'; hint.className='username-hint err'; return; }
-  if (val === currentUser.username) { hint.textContent='This is your current username.'; hint.className='username-hint'; return; }
+  if (val.toLowerCase() === (currentUser.username||'').toLowerCase()) { hint.textContent='This is your current username.'; hint.className='username-hint'; return; }
   hint.textContent = 'Checking...'; hint.className='username-hint';
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/profiles?select=username&username=eq.${encodeURIComponent(val)}`,{headers:{apikey:SB_KEY,Accept:'application/json'}});
-    const d = await r.json();
-    if (d.length) { hint.textContent='Username already taken.'; hint.className='username-hint err'; }
-    else { hint.textContent='✓ Username available!'; hint.className='username-hint ok'; }
+    const r = await fetch(SB_URL + '/rest/v1/rpc/check_username_available', {
+      method: 'POST',
+      headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username_input: val })
+    });
+    const available = await r.json();
+    if (!available) { hint.textContent='Username already taken (case-insensitive).'; hint.className='username-hint err'; }
+    else { hint.textContent='Username available!'; hint.className='username-hint ok'; }
   } catch(e) { hint.textContent='Check failed.'; hint.className='username-hint err'; }
 }
 
 // ── Upload Avatar to Supabase Storage ──
 async function uploadAvatarToStorage(uid, file) {
   const ext = file.name.split('.').pop().toLowerCase();
-  const filename = `avatar_${Date.now()}.${ext}`;
-  const path = `${uid}/${filename}`;
+  const filename = 'avatar_' + Date.now() + '.' + ext;
+  const path = uid + '/' + filename;
 
-  // Show progress
   document.getElementById('av-progress-wrap').style.display = 'block';
   document.getElementById('av-progress-bar').style.width = '30%';
 
-  const token = localStorage.getItem('peu_token');
+  const token = await getValidToken();
+  if (!token) throw new Error('Session expired — please sign in again');
+
   const headers = {
     apikey: SB_KEY,
     'Content-Type': file.type,
+    'Authorization': 'Bearer ' + token
   };
-  if (token) headers['Authorization'] = 'Bearer ' + token;
 
-  const r = await fetch(`${SB_URL}/storage/v1/object/${AVATAR_BUCKET}/${path}`, {
+  const r = await fetch(SB_URL + '/storage/v1/object/' + AVATAR_BUCKET + '/' + path, {
     method: 'POST',
     headers,
-    body: file,
+    body: file
   });
 
   document.getElementById('av-progress-bar').style.width = '100%';
@@ -1321,7 +1394,7 @@ async function uploadAvatarToStorage(uid, file) {
     const err = await r.json().catch(()=>({}));
     throw new Error(err.message || 'Upload failed');
   }
-  return filename; // return just the filename, we store path as uid/filename
+  return filename;
 }
 
 // ── Delete old avatar from Supabase Storage ──
@@ -1390,12 +1463,14 @@ async function saveProfile() {
 
     // Username changed?
     if (newUsername !== currentUser.username) {
-      // Check uniqueness
-      const check = await fetch(`${SB_URL}/rest/v1/profiles?select=username&username=eq.${encodeURIComponent(newUsername)}&id=neq.${uid}`,
-        {headers:{apikey:SB_KEY,Accept:'application/json'}});
-      const chkd = await check.json();
-      if (chkd.length) {
-        hint.textContent = 'Username already taken.';
+      const chkR = await fetch(SB_URL + '/rest/v1/rpc/check_username_available', {
+        method: 'POST',
+        headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username_input: newUsername })
+      });
+      const available = await chkR.json();
+      if (!available) {
+        hint.textContent = 'Username already taken (case-insensitive).';
         hint.className = 'username-hint err';
         saveBtn.disabled = false;
         saveBtn.textContent = 'SAVE CHANGES';
@@ -1499,12 +1574,26 @@ async function fetchLB() {
     renderTable(allData);
     document.getElementById('lb-p').textContent = allData.length.toLocaleString();
     document.getElementById('lb-s').textContent = allData.reduce((a,p)=>a+(p.songs_played||0),0).toLocaleString();
-    document.getElementById('lb-t').textContent = allData.length ? allData[0].total_score.toLocaleString() : '0';
+    // TOP ULTRA PTS — en yüksek ultra_points
+    const topUP = allData.length ? (allData[0].ultra_points||0).toFixed(1) : '0';
+    document.getElementById('lb-t').textContent = topUP + ' UP';
     const now=new Date();
     document.getElementById('lb-upd').textContent=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
   } catch(e) {
     document.getElementById('lb-loading').innerHTML='<p style="color:#f87171;letter-spacing:2px">CONNECTION ERROR</p>';
   }
+}
+
+function formatUP(val) {
+  const n = parseFloat(val||0);
+  return n.toFixed(1) + ' UP';
+}
+
+function getRoleCls(role) {
+  if (role === 'founder')   return 'role-founder';
+  if (role === 'admin')     return 'role-admin';
+  if (role === 'moderator') return 'role-moderator';
+  return '';
 }
 
 function renderPodium(data) {
@@ -1515,18 +1604,24 @@ function renderPodium(data) {
     const init=(p.username||'?').substring(0,2).toUpperCase();
     const flag=FLAGS[p.country]||'🌍';
     const acc=(p.best_accuracy||0).toFixed(1);
+    const up=formatUP(p.ultra_points);
     const avEl = document.getElementById('pod'+n+'-av');
-    // Check if player has avatar_url
     if (p.avatar_url && p.id) {
       const url = getAvatarUrl(p.id, p.avatar_url);
-      avEl.innerHTML = `<img src="${url}" alt="${init}" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML='${init}'">`;
+      avEl.innerHTML = `<img src="${url}" alt="${init}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.outerHTML='${init}'">`;
     } else {
       avEl.textContent = init;
     }
     document.getElementById('pod'+n+'-name').textContent=p.username||'Unknown';
     document.getElementById('pod'+n+'-flag').textContent=flag;
-    document.getElementById('pod'+n+'-score').textContent=(p.total_score||0).toLocaleString()+' PTS';
+    document.getElementById('pod'+n+'-score').textContent=up;
     document.getElementById('pod'+n+'-meta').textContent='Lv.'+(p.level||1)+' • '+acc+'% BEST ACC';
+    // Badge
+    const nameEl = document.getElementById('pod'+n+'-name');
+    if (p.badge && p.role !== 'player') {
+      const cls = getRoleCls(p.role);
+      nameEl.innerHTML = p.username + `<br><span class="podium-badge-role ${cls}">${p.badge}</span>`;
+    }
   };
   fill(1, data[0]);
   fill(2, data[1]||null);
@@ -1549,15 +1644,23 @@ function renderTable(data) {
     const flag=FLAGS[p.country]||'🌍';
     const acc=(p.best_accuracy||0).toFixed(1);
     const accCls=acc>=99?'acc-ss':acc>=95?'acc-s':acc>=85?'acc-a':acc>=70?'acc-b':'acc-c';
+    const up=formatUP(p.ultra_points);
     const avHtml = (p.avatar_url && p.id)
       ? `<img src="${getAvatarUrl(p.id, p.avatar_url)}" alt="${init}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.outerHTML='${init}'">`
       : init;
+    const roleCls = getRoleCls(p.role);
+    const badgeHtml = (p.badge && p.role !== 'player')
+      ? `<span class="role-badge ${roleCls}">${p.badge}</span>`
+      : '';
+    // Rank rengi: founder=gold, admin=purple, mod=green, others by pos
+    const rankCls = p.role==='founder'?'rank-1':p.role==='admin'?'rank-2':'rank-other';
+    const avCls = p.role==='founder'?'av g1':p.role==='admin'?'av g2':'av';
     return `<tr>
-      <td><span class="rank-cell rank-other">${pos}</span></td>
-      <td><div class="player-cell"><div class="av">${avHtml}</div><div><span class="pname">${p.username||'Unknown'}</span></div></div></td>
+      <td><span class="rank-cell ${rankCls}">${pos}</span></td>
+      <td><div class="player-cell"><div class="${avCls}">${avHtml}</div><div><span class="pname">${p.username||'Unknown'}</span>${badgeHtml}</div></div></td>
       <td><span class="flag">${flag}</span></td>
       <td><span class="lvl">Lv.${p.level||1}</span></td>
-      <td><span class="score">${(p.total_score||0).toLocaleString()}</span></td>
+      <td><span class="score acc-ss">${up}</span></td>
       <td><span class="${accCls}">${acc}%</span></td>
       <td><span class="songs">${p.songs_played||0}</span></td>
     </tr>`;
@@ -1576,13 +1679,64 @@ async function loadHeroStats() {
   document.getElementById('totalDownloads').textContent = '—';
 }
 
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 < Date.now() + 60000;
+  } catch(e) { return true; }
+}
+
+async function refreshToken() {
+  const refresh = localStorage.getItem('peu_refresh');
+  if (!refresh) return null;
+  try {
+    const r = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refresh })
+    });
+    const d = await r.json();
+    if (d.access_token) {
+      localStorage.setItem('peu_token',   d.access_token);
+      localStorage.setItem('peu_refresh', d.refresh_token || refresh);
+      return d.access_token;
+    }
+  } catch(e) {}
+  return null;
+}
+
+async function getValidToken() {
+  const token = localStorage.getItem('peu_token');
+  if (!token) return null;
+  if (isTokenExpired(token)) {
+    const newToken = await refreshToken();
+    if (!newToken) {
+      signOut();
+      return null;
+    }
+    return newToken;
+  }
+  return token;
+}
+
+
+
 // ── AUTO LOGIN ──
 (function autoLogin(){
   const token = localStorage.getItem('peu_token');
   const user  = localStorage.getItem('peu_user');
   const email = localStorage.getItem('peu_email');
   const avatar = localStorage.getItem('peu_avatar');
-  if (token && user) setLoggedIn(user, email||'', avatar||null);
+  if (token && user) {
+    if (isTokenExpired(token)) {
+      refreshToken().then(newToken => {
+        if (newToken) setLoggedIn(user, email||'', avatar||null);
+        else signOut();
+      });
+    } else {
+      setLoggedIn(user, email||'', avatar||null);
+    }
+  }
 })();
 
 // ── INIT ──
