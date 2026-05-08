@@ -18,6 +18,10 @@ class English implements ILanguage
 		"opt_menu_settings"      => "Menu Settings",
 		"opt_mobile"             => "Mobile Settings",
 		
+		"reset_score_title" => "Reset the score of",
+		"yes"               => "Yes",
+		"no"                => "No",
+		
 		"peu_title"               => "P.E.U Settings",
 		"peu_rpc_title"           => "P.E.U Settings Menu",
 		"peu_watermark"           => "P.E.U Watermark",
@@ -34,6 +38,14 @@ class English implements ILanguage
 		"peu_menu_theme_desc"     => "Select the theme for the menus.",
 		"peu_theme_turkey"        => "Turkey",
 		"peu_theme_original"      => "Original",
+		"peu_ultramodsystem"          => "Ultra Mod System",
+		"peu_ultramodsystem_desc"          => "if enabled, the Ultra Mode system is used and becomes more compatible with the Psych Engine Ultra",
+		
+		"code_menu_prompt"              => "Enter Secret Code:",
+		"code_menu_back"                => "Press ESC to return to main menu",
+		"code_menu_enter_code"          => "Enter Code.",
+		"code_menu_unknown"             => "Unknown Code!",
+		"code_menu_hold_skip"           => "Hold to Skip",
 
 		"opt_desc_note_colors"   => "Customize the colors and appearance of the notes however you like.",
 		"opt_desc_controls"      => "Configure keyboard and gamepad button assignments.",
@@ -130,6 +142,8 @@ class English implements ILanguage
 		"graphics_gpu_cache_desc"    => "If enabled, allows GPU to cache textures, reducing RAM usage. Don't enable if your mods modify sprite pixels.",
 		"graphics_framerate"         => "Framerate",
 		"graphics_framerate_desc"    => "Pretty self explanatory, right?",
+		"graphics_potatomode"    => "Potato Mode",
+		"graphics_potatomode_desc"    => "When enabled, it disables everything in-game (characters, backgrounds, etc.) to provide an OSU-style experience and significantly boosts performance",
 
 		// Gameplay
 		"gameplay_menu"                 => "Gameplay",
@@ -292,6 +306,40 @@ class English implements ILanguage
 		"achievement_locked"        => "Locked",
 		"reset_achievement"         => "Reset Achievement:",
 		"reset_achievement_confirm" => "Achievement progress will be reset. Are you sure?",
+		
+		"freeplay_title"                => "FREEPLAY",
+		"freeplay_songs"                => "Songs",
+		"freeplay_result"               => "result",
+		"freeplay_random"               => "RANDOM",
+		"freeplay_random_subtitle"      => "Pick a random song!",
+		"freeplay_song_name"            => "SONG NAME",
+		"freeplay_hint_pc"              => "F: Search | TAB: Filter",
+		"freeplay_hint_mobile"          => "Z: Search | Y: Filter",
+		"freeplay_search_prompt"        => "SEARCH",
+		"freeplay_score_label"          => "◈ SCORE",
+		"freeplay_score_label_short"    => "Score: ",
+		"freeplay_accuracy_label"       => "Accuracy: ",
+		"freeplay_grade_na"             => "N/A",
+		"freeplay_difficulty_label"     => "◈ DIFFICULTY",
+		"freeplay_stats_label"          => "◈ STATISTICS",
+		"freeplay_stat_total"           => "Total: ",
+		"freeplay_stat_favorites"       => "Favorites: ",
+		"freeplay_stat_completed"       => "Completed: ",
+		"freeplay_week_prefix"          => "Week ",
+		"freeplay_controls_pc"          => "ENTER: Select  ESC: Back  SPACE: Play Song  TAB: Category  F: Search",
+		"freeplay_controls_mobile"      => "A: Select  B: Back  X: Play Song  Y: Category  Z: Search",
+		"freeplay_menu_modifiers"       => "GAMEPLAY MODIFIERS",
+		"freeplay_menu_reset"           => "RESET SCORE",
+		"freeplay_menu_back"            => "BACK",
+		"freeplay_tip_search_mobile"    => "🔍 Search — A: Enter  B: Cancel",
+		"freeplay_tip_searchbox_mobile" => "⌨ Search box active — A/B: Close",
+		"freeplay_tip_category"         => "📂 Category: ",
+		"freeplay_tip_fav_added"        => "Added to Favorites: ",
+		"freeplay_tip_fav_removed"      => "Removed from Favorites: ",
+		"freeplay_tip_hidden_added"     => "🙈 Added to Hidden: ",
+		"freeplay_tip_hidden_removed"   => "👁 Removed from Hidden: ",
+		"freeplay_tip_reset"            => "🗑 Resetting SCORE...",
+		"freeplay_tip_menu_mobile"      => "↕ Select  A: Confirm  B: Back  ←/→: Difficulty",
 
 		// Menu descriptions
 		"menu_desc_story"        => "Experience the main story and defeat your rivals!\nAn epic adventure awaits you.",
@@ -445,6 +493,8 @@ class English implements ILanguage
 
 		"language_changed_title" => "Language Changed!",
 		"language_changed_msg"   => "Switched to English.",
+		"language_locked_title"  => "Language Locked!",
+		"language_locked_msg"    => "This language is currently unavailable.",
 
 		// Direct phrase keys
 		"Practice Mode" => "Practice Mode",

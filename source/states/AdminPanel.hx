@@ -13,14 +13,10 @@ import flixel.input.keyboard.FlxKey;
 
 class AdminPanel extends FlxSpriteGroup
 {
-    // ═══════════════════════════════════════════════════════════════
-    // DURUM
-    // ═══════════════════════════════════════════════════════════════
     public var isOpen:Bool = false;
     var categories:Array<String> = ["SUNUCU", "HİLE", "KONSOL", "MODLAR", "OYUNCULAR", "AYARLAR"];
     var curCategory:Int = 0;
 
-    // ─── Layout sabitleri ───────────────────────────────────────
     static inline var PANEL_W:Int   = 1020;
     static inline var PANEL_H:Int   = 620;
     static inline var PANEL_X:Float = (1280 - PANEL_W) / 2;
@@ -33,7 +29,6 @@ class AdminPanel extends FlxSpriteGroup
     static inline var CONTENT_BOT:Float = PANEL_Y + PANEL_H - 60;
     static inline var VISIBLE_H:Float   = CONTENT_BOT - CONTENT_TOP;
 
-    // ─── Tema renkleri (modern görünüm) ─────────────────────────
     static inline var COL_OVERLAY:Int        = 0xE6050610;
     static inline var COL_PANEL_BG:Int       = 0xF010101A;
     static inline var COL_PANEL_BORDER:Int   = 0xFF5EF2FF;
@@ -58,7 +53,6 @@ class AdminPanel extends FlxSpriteGroup
     static inline var COL_WARNING:Int        = 0xFFFFC857;
     static inline var COL_WARNING_DARK:Int   = 0xFF5C4613;
 
-    // ─── Temel UI ──────────────────────────────────────────────
     var overlay:FlxSprite;
     var panelBorder:FlxSprite;
     var panelBG:FlxSprite;
@@ -71,7 +65,6 @@ class AdminPanel extends FlxSpriteGroup
     var welcomeText:FlxText;
     var subTitleText:FlxText;
 
-    // ─── Sunucu ────────────────────────────────────────────────
     var serverGroup:FlxSpriteGroup;
     var serverLines:Array<FlxText>  = [];
     var serverScrollBar:FlxSprite;
@@ -102,7 +95,6 @@ class AdminPanel extends FlxSpriteGroup
         "► Çözünürlük   : 1280x720"
     ];
 
-    // ─── Hile ──────────────────────────────────────────────────
     var cheatGroup:FlxSpriteGroup;
     var cheatItemBGs:Array<FlxSprite>    = [];
     var cheatItemTexts:Array<FlxText>    = [];
@@ -120,7 +112,6 @@ class AdminPanel extends FlxSpriteGroup
     ];
     var cheatStates:Map<String,Bool>;
 
-    // ─── Konsol ────────────────────────────────────────────────
     var consoleGroup:FlxSpriteGroup;
     var consoleLines:Array<String>      = [];
     var consoleLineTexts:Array<FlxText> = [];
@@ -129,7 +120,6 @@ class AdminPanel extends FlxSpriteGroup
     var consoleInput:String = "";
     var consoleBlink:Float  = 0;
 
-    // ─── Modlar ────────────────────────────────────────────────
     var modGroup:FlxSpriteGroup;
     var modLines:Array<FlxText>  = [];
     var modScrollBar:FlxSprite;
@@ -150,7 +140,6 @@ class AdminPanel extends FlxSpriteGroup
         "► Mod 5: Aktif"
     ];
 
-    // ─── Oyuncular ─────────────────────────────────────────────
     var playerGroup:FlxSpriteGroup;
     var playerLines:Array<FlxText>  = [];
     var playerScrollBar:FlxSprite;
@@ -167,7 +156,6 @@ class AdminPanel extends FlxSpriteGroup
         "► Oyuncu 3: Çevrimiçi (Ping: 24ms)"
     ];
 
-    // ─── Ayarlar ───────────────────────────────────────────────
     var settingsGroup:FlxSpriteGroup;
     var settingsLines:Array<FlxText>  = [];
     var settingsScrollBar:FlxSprite;
@@ -185,9 +173,6 @@ class AdminPanel extends FlxSpriteGroup
         "► Otomatik Kaydet: Açık"
     ];
 
-    // ═══════════════════════════════════════════════════════════════
-    // OLUŞTURMA
-    // ═══════════════════════════════════════════════════════════════
     public function new()
     {
         super();
@@ -221,9 +206,6 @@ class AdminPanel extends FlxSpriteGroup
         this.visible = false;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // BASE
-    // ═══════════════════════════════════════════════════════════════
     function buildBase()
     {
         overlay = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, COL_OVERLAY);
@@ -242,7 +224,6 @@ class AdminPanel extends FlxSpriteGroup
         panelBG.scrollFactor.set(0, 0);
         add(panelBG);
 
-        // Sol taraf için hafif degrade efekti
         var lsTop = new FlxSprite(PANEL_X, PANEL_Y)
             .makeGraphic(LEFT_W, Std.int(PANEL_H * 0.55), COL_LEFT_BG_TOP);
         lsTop.scrollFactor.set(0, 0);
@@ -253,14 +234,12 @@ class AdminPanel extends FlxSpriteGroup
         lsBottom.scrollFactor.set(0, 0);
         add(lsBottom);
 
-        // İnce parlama çizgisi
         var lsGlow = new FlxSprite(PANEL_X + LEFT_W - 3, PANEL_Y)
             .makeGraphic(3, PANEL_H, COL_DIVIDER);
         lsGlow.alpha = 0.4;
         lsGlow.scrollFactor.set(0, 0);
         add(lsGlow);
 
-        // Eski tek parça paneli kullanmıyoruz
         var ls = new FlxSprite(PANEL_X, PANEL_Y).makeGraphic(LEFT_W, PANEL_H, 0x00000000);
         ls.scrollFactor.set(0, 0);
         add(ls);
@@ -289,12 +268,8 @@ class AdminPanel extends FlxSpriteGroup
         add(contentTitle);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // LOGO
-    // ═══════════════════════════════════════════════════════════════
     function buildLogo()
     {
-        // Sol üst köşe: kompakt logo + başlık alanı
         try {
             logo = new FlxSprite().loadGraphic(Paths.image('pet/petlogo'));
             logo.antialiasing = ClientPrefs.data.antialiasing;
@@ -323,16 +298,12 @@ class AdminPanel extends FlxSpriteGroup
         add(subTitleText);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // KATEGORI LİSTESİ
-    // ═══════════════════════════════════════════════════════════════
     function buildCategoryList()
     {
         var catLabels = ["SUNUCU", "HİLE", "KONSOL", "MODLAR", "OYUNCULAR", "AYARLAR"];
         var catH      = 54;
         var startY    = PANEL_Y + 90;
 
-        // Sol üst başlık
         var leftTitle = new FlxText(PANEL_X + 16, PANEL_Y + 20, LEFT_W - 32, "YÖNETİM SEKMELESI", 11);
         leftTitle.setFormat(Paths.font("vcr.ttf"), 11, COL_TEXT_MUTED, LEFT);
         leftTitle.scrollFactor.set(0, 0);
@@ -353,7 +324,6 @@ class AdminPanel extends FlxSpriteGroup
             add(txt);
             catTexts.push(txt);
 
-            // İkon ekleme
             var icon = new FlxSprite(PANEL_X + 16, startY + i * catH + 14);
             icon.makeGraphic(12, 12, COL_PRIMARY);
             icon.scrollFactor.set(0, 0);
@@ -370,9 +340,6 @@ class AdminPanel extends FlxSpriteGroup
         updateCategoryVisuals();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // SUNUCU PANELİ
-    // ═══════════════════════════════════════════════════════════════
     function buildServerPanel()
     {
         serverGroup = new FlxSpriteGroup();
@@ -398,13 +365,11 @@ class AdminPanel extends FlxSpriteGroup
         var totalH      = serverData.length * serverLineHeight + 8;
         serverMaxOffset = Math.max(0, totalH - VISIBLE_H);
 
-        // Scrollbar arka plan
         serverScrollBar = new FlxSprite(RIGHT_X + RIGHT_W - 14, CONTENT_TOP)
             .makeGraphic(10, Std.int(VISIBLE_H), COL_SCROLL_TRACK);
         serverScrollBar.scrollFactor.set(0, 0);
         serverGroup.add(serverScrollBar);
 
-        // Scrollbar thumb
         var thumbH = Std.int(Math.max(30, VISIBLE_H * (VISIBLE_H / totalH)));
         serverScrollThumb = new FlxSprite(RIGHT_X + RIGHT_W - 14, CONTENT_TOP)
             .makeGraphic(10, thumbH, COL_SCROLL_THUMB);
@@ -412,7 +377,6 @@ class AdminPanel extends FlxSpriteGroup
         serverScrollThumb.scrollFactor.set(0, 0);
         serverGroup.add(serverScrollThumb);
 
-        // Ban butonu
         serverBanButton = new FlxSprite(RIGHT_X, PANEL_Y + PANEL_H - 50)
             .makeGraphic(180, 38, COL_DANGER_DARK);
         serverBanButton.scrollFactor.set(0, 0);
@@ -424,7 +388,6 @@ class AdminPanel extends FlxSpriteGroup
         serverBanText.scrollFactor.set(0, 0);
         serverGroup.add(serverBanText);
 
-        // Yenile butonu
         serverRefreshButton = new FlxSprite(RIGHT_X + 190, PANEL_Y + PANEL_H - 50)
             .makeGraphic(180, 38, COL_PRIMARY_DARK);
         serverRefreshButton.scrollFactor.set(0, 0);
@@ -440,9 +403,6 @@ class AdminPanel extends FlxSpriteGroup
         updateServerScroll();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // HİLE PANELİ
-    // ═══════════════════════════════════════════════════════════════
     function buildCheatPanel()
     {
         cheatGroup = new FlxSpriteGroup();
@@ -478,9 +438,6 @@ class AdminPanel extends FlxSpriteGroup
         updateCheatVisuals();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // KONSOL PANELİ
-    // ═══════════════════════════════════════════════════════════════
     function buildConsolePanel()
     {
         consoleGroup = new FlxSpriteGroup();
@@ -588,7 +545,6 @@ class AdminPanel extends FlxSpriteGroup
 		}
 	}
 
-
 	function handleConsoleKeys()
 	{
 		if (FlxG.keys.justPressed.BACKSPACE)
@@ -609,7 +565,6 @@ class AdminPanel extends FlxSpriteGroup
 			return;
 		}
 
-		// Basılan ilk tuşu al ve karakter karşılığını ekle
 		var firstKey = FlxG.keys.firstJustPressed();
 		if (firstKey != -1) 
 		{
@@ -622,8 +577,6 @@ class AdminPanel extends FlxSpriteGroup
 		}
 	}
 
-
-
     function updateCursorText()
     {
         consoleCursor.text = consoleInput;
@@ -633,8 +586,8 @@ class AdminPanel extends FlxSpriteGroup
 	{
 		switch (key)
 		{
-			case FlxKey.SEVEN: return shift ? "/" : "7"; // Türkçe Q klavye: Shift + 7
-			case FlxKey.SLASH | FlxKey.NUMPADSLASH: return "/"; // Numpad veya İngilizce düzen
+			case FlxKey.SEVEN: return shift ? "/" : "7";
+			case FlxKey.SLASH | FlxKey.NUMPADSLASH: return "/";
 			case FlxKey.SPACE: return " ";
 			case FlxKey.MINUS: return shift ? "_" : "-";
 			case FlxKey.PERIOD: return shift ? ":" : ".";
@@ -649,7 +602,6 @@ class AdminPanel extends FlxSpriteGroup
 			case FlxKey.NINE: return shift ? "(" : "9";
 			case FlxKey.ZERO: return shift ? ")" : "0";
 			default: 
-				// Harfler için otomatik dönüşüm
 				var id:Int = cast key;
 				if (id >= 65 && id <= 90) {
 					var char = String.fromCharCode(id);
@@ -659,11 +611,6 @@ class AdminPanel extends FlxSpriteGroup
 		return "";
 	}
 
-
-
-    // ═══════════════════════════════════════════════════════════════
-    // MOD PANELİ
-    // ═══════════════════════════════════════════════════════════════
     function buildModPanel()
     {
         modGroup = new FlxSpriteGroup();
@@ -689,13 +636,11 @@ class AdminPanel extends FlxSpriteGroup
         var totalH      = modData.length * modLineHeight + 8;
         modMaxOffset = Math.max(0, totalH - VISIBLE_H);
 
-        // Scrollbar arka plan
         modScrollBar = new FlxSprite(RIGHT_X + RIGHT_W - 14, CONTENT_TOP)
             .makeGraphic(10, Std.int(VISIBLE_H), COL_SCROLL_TRACK);
         modScrollBar.scrollFactor.set(0, 0);
         modGroup.add(modScrollBar);
 
-        // Scrollbar thumb
         var thumbH = Std.int(Math.max(30, VISIBLE_H * (VISIBLE_H / totalH)));
         modScrollThumb = new FlxSprite(RIGHT_X + RIGHT_W - 14, CONTENT_TOP)
             .makeGraphic(10, thumbH, COL_SCROLL_THUMB);
@@ -703,7 +648,6 @@ class AdminPanel extends FlxSpriteGroup
         modScrollThumb.scrollFactor.set(0, 0);
         modGroup.add(modScrollThumb);
 
-        // Yükle butonu
         modLoadButton = new FlxSprite(RIGHT_X, PANEL_Y + PANEL_H - 50)
             .makeGraphic(180, 38, COL_SUCCESS_DARK);
         modLoadButton.scrollFactor.set(0, 0);
@@ -715,7 +659,6 @@ class AdminPanel extends FlxSpriteGroup
         modLoadText.scrollFactor.set(0, 0);
         modGroup.add(modLoadText);
 
-        // Kaldır butonu
         modUnloadButton = new FlxSprite(RIGHT_X + 190, PANEL_Y + PANEL_H - 50)
             .makeGraphic(180, 38, COL_WARNING_DARK);
         modUnloadButton.scrollFactor.set(0, 0);
@@ -731,9 +674,6 @@ class AdminPanel extends FlxSpriteGroup
         updateModScroll();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // OYUNCU PANELİ
-    // ═══════════════════════════════════════════════════════════════
     function buildPlayerPanel()
     {
         playerGroup = new FlxSpriteGroup();
@@ -759,13 +699,11 @@ class AdminPanel extends FlxSpriteGroup
         var totalH      = playerData.length * playerLineHeight + 8;
         playerMaxOffset = Math.max(0, totalH - VISIBLE_H);
 
-        // Scrollbar arka plan
         playerScrollBar = new FlxSprite(RIGHT_X + RIGHT_W - 14, CONTENT_TOP)
             .makeGraphic(10, Std.int(VISIBLE_H), COL_SCROLL_TRACK);
         playerScrollBar.scrollFactor.set(0, 0);
         playerGroup.add(playerScrollBar);
 
-        // Scrollbar thumb
         var thumbH = Std.int(Math.max(30, VISIBLE_H * (VISIBLE_H / totalH)));
         playerScrollThumb = new FlxSprite(RIGHT_X + RIGHT_W - 14, CONTENT_TOP)
             .makeGraphic(10, thumbH, COL_SCROLL_THUMB);
@@ -773,7 +711,6 @@ class AdminPanel extends FlxSpriteGroup
         playerScrollThumb.scrollFactor.set(0, 0);
         playerGroup.add(playerScrollThumb);
 
-        // At butonu
         playerKickButton = new FlxSprite(RIGHT_X, PANEL_Y + PANEL_H - 50)
             .makeGraphic(180, 38, COL_DANGER_DARK);
         playerKickButton.scrollFactor.set(0, 0);
@@ -789,9 +726,6 @@ class AdminPanel extends FlxSpriteGroup
         updatePlayerScroll();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // AYARLAR PANELİ
-    // ═══════════════════════════════════════════════════════════════
     function buildSettingsPanel()
     {
         settingsGroup = new FlxSpriteGroup();
@@ -817,13 +751,11 @@ class AdminPanel extends FlxSpriteGroup
         var totalH      = settingsData.length * settingsLineHeight + 8;
         settingsMaxOffset = Math.max(0, totalH - VISIBLE_H);
 
-        // Scrollbar arka plan
         settingsScrollBar = new FlxSprite(RIGHT_X + RIGHT_W - 14, CONTENT_TOP)
             .makeGraphic(10, Std.int(VISIBLE_H), COL_SCROLL_TRACK);
         settingsScrollBar.scrollFactor.set(0, 0);
         settingsGroup.add(settingsScrollBar);
 
-        // Scrollbar thumb
         var thumbH = Std.int(Math.max(30, VISIBLE_H * (VISIBLE_H / totalH)));
         settingsScrollThumb = new FlxSprite(RIGHT_X + RIGHT_W - 14, CONTENT_TOP)
             .makeGraphic(10, thumbH, COL_SCROLL_THUMB);
@@ -831,7 +763,6 @@ class AdminPanel extends FlxSpriteGroup
         settingsScrollThumb.scrollFactor.set(0, 0);
         settingsGroup.add(settingsScrollThumb);
 
-        // Kaydet butonu
         settingsSaveButton = new FlxSprite(RIGHT_X, PANEL_Y + PANEL_H - 50)
             .makeGraphic(180, 38, COL_SUCCESS_DARK);
         settingsSaveButton.scrollFactor.set(0, 0);
@@ -847,9 +778,6 @@ class AdminPanel extends FlxSpriteGroup
         updateSettingsScroll();
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // HINT
-    // ═══════════════════════════════════════════════════════════════
     function buildHint()
     {
         hintText = new FlxText(PANEL_X, PANEL_Y + PANEL_H - 22, PANEL_W,
@@ -860,9 +788,6 @@ class AdminPanel extends FlxSpriteGroup
         add(hintText);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // SCROLL
-    // ═══════════════════════════════════════════════════════════════
     function scrollServer(delta:Float)
     {
         serverScrollOffset = FlxMath.bound(serverScrollOffset + delta, 0, serverMaxOffset);
@@ -941,9 +866,6 @@ class AdminPanel extends FlxSpriteGroup
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // KATEGORİ
-    // ═══════════════════════════════════════════════════════════════
     function changeCategory(dir:Int)
     {
         curCategory = (curCategory + dir + categories.length) % categories.length;
@@ -993,9 +915,6 @@ class AdminPanel extends FlxSpriteGroup
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // HİLE
-    // ═══════════════════════════════════════════════════════════════
     function changeCheat(dir:Int)
     {
         curCheat = (curCheat + dir + cheatKeys.length) % cheatKeys.length;
@@ -1041,9 +960,6 @@ class AdminPanel extends FlxSpriteGroup
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // AÇMA / KAPAMA
-    // ═══════════════════════════════════════════════════════════════
     public function openPanel()
     {
         if (isOpen) return;
@@ -1071,14 +987,10 @@ class AdminPanel extends FlxSpriteGroup
         });
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // INPUT
-    // ═══════════════════════════════════════════════════════════════
 	public function handleInput(controls:backend.Controls)
 	{
 		if (!isOpen) return;
 
-		// SHIFT + yön = her zaman kategori değiştir
 		if (FlxG.keys.pressed.SHIFT)
 		{
 			if (controls.UI_UP_P)   changeCategory(-1);
@@ -1088,18 +1000,17 @@ class AdminPanel extends FlxSpriteGroup
 
 		switch (curCategory)
 		{
-			case 0: // Sunucu — UP/DOWN scroll yapar
+			case 0:
 				if (controls.UI_UP_P)   scrollServer(-serverLineHeight);
 				if (controls.UI_DOWN_P) scrollServer(serverLineHeight);
 
-			case 1: // Hile — UP/DOWN hile seçer, ENTER toggle
+			case 1:
 				if (controls.UI_UP_P)   changeCheat(-1);
 				if (controls.UI_DOWN_P) changeCheat(1);
 				if (controls.ACCEPT)    toggleCurrentCheat();
 
-			case 2: // Konsol — klavye girişi + ENTER çalıştır
+			case 2:
 				handleConsoleKeys();
-				// Sadece ENTER tuşuna basıldığında komut çalışsın, Space'e basınca çalışmasın
 				if (FlxG.keys.justPressed.ENTER)
 				{
 					runConsoleCommand(consoleInput);
@@ -1107,37 +1018,33 @@ class AdminPanel extends FlxSpriteGroup
 					updateCursorText();
 				}
 
-			case 3: // Modlar — UP/DOWN scroll yapar
+			case 3:
 				if (controls.UI_UP_P)   modScrollOffset = FlxMath.bound(modScrollOffset - modLineHeight, 0, modMaxOffset);
 				if (controls.UI_DOWN_P) modScrollOffset = FlxMath.bound(modScrollOffset + modLineHeight, 0, modMaxOffset);
 				updateModScroll();
 
-			case 4: // Oyuncular — UP/DOWN scroll yapar
+			case 4:
 				if (controls.UI_UP_P)   playerScrollOffset = FlxMath.bound(playerScrollOffset - playerLineHeight, 0, playerMaxOffset);
 				if (controls.UI_DOWN_P) playerScrollOffset = FlxMath.bound(playerScrollOffset + playerLineHeight, 0, playerMaxOffset);
 				updatePlayerScroll();
 
-			case 5: // Ayarlar — UP/DOWN scroll yapar
+			case 5:
 				if (controls.UI_UP_P)   settingsScrollOffset = FlxMath.bound(settingsScrollOffset - settingsLineHeight, 0, settingsMaxOffset);
 				if (controls.UI_DOWN_P) settingsScrollOffset = FlxMath.bound(settingsScrollOffset + settingsLineHeight, 0, settingsMaxOffset);
 				updateSettingsScroll();
 		}
 	}
 
-
-
     public function handleUpdate(elapsed:Float)
     {
         if (!isOpen) return;
 
-        // Mouse scroll (sunucu paneli)
         if (curCategory == 0 && FlxG.mouse.wheel != 0)
             scrollServer(-FlxG.mouse.wheel * serverLineHeight * 1.5);
 
         if (curCategory == 0)
             updateServerScroll();
 
-        // Konsol imleç blink
         if (curCategory == 2)
         {
             consoleBlink += elapsed;
@@ -1145,7 +1052,6 @@ class AdminPanel extends FlxSpriteGroup
             consoleCursor.text = consoleInput + (consoleBlink < 0.25 ? "_" : "");
         }
 
-        // Ban butonu hover
         if (curCategory == 0 && serverBanButton != null)
         {
             if (FlxG.mouse.overlaps(serverBanButton))
@@ -1168,7 +1074,6 @@ class AdminPanel extends FlxSpriteGroup
             }
         }
 
-        // Mouse ile kategori tıklama
         var catH   = 54;
         var startY = PANEL_Y + 90;
         for (i in 0...categories.length)
@@ -1186,9 +1091,6 @@ class AdminPanel extends FlxSpriteGroup
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // BEAT SYNC
-    // ═══════════════════════════════════════════════════════════════
     public function onBeat()
     {
         if (!isOpen || logo == null) return;

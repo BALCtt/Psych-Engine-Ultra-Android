@@ -11,6 +11,9 @@ class LanguageSubState extends MusicBeatSubstate
     var curSelected:Int        = 0;
     var changedLanguage:Bool   = false;
 
+    // ── KİLİTLİ DİLLER ──────────────────────────────────────────
+    static final LOCKED_LANGS:Array<String> = ["mexico", "french", "azerbaycan"];
+
     // ── Scroll sistemi ──────────────────────────────────────────
     var scrollOffset:Float     = 0;
     var targetScrollOffset:Float = 0;
@@ -128,6 +131,15 @@ class LanguageSubState extends MusicBeatSubstate
         }
 
         FlxG.camera.fade(COL_BG, 0.25, true);
+    }
+
+    // ═══════════════════════════════════════════════
+    // KİLİT KONTROL FONKSİYONU
+    // ═══════════════════════════════════════════════
+    
+    function isLangLocked(key:String):Bool
+    {
+        return LOCKED_LANGS.contains(key.toLowerCase());
     }
 
     // ═══════════════════════════════════════════════
@@ -340,12 +352,16 @@ class LanguageSubState extends MusicBeatSubstate
 
         for (i in 0...langKeys.length)
         {
+            var key = langKeys[i];
+            var isLocked = isLangLocked(key);
+            
             var item = new LangItem(
                 LIST_X + 8,
                 LIST_Y + i * (ITEM_H + ITEM_GAP),
-                langKeys[i],
-                Language.getLangDisplayName(langKeys[i]),
-                Std.int(LIST_W)
+                key,
+                Language.getLangDisplayName(key),
+                Std.int(LIST_W),
+                isLocked
             );
             listItems.push(item);
             listGroup.add(item);
@@ -459,6 +475,7 @@ class LanguageSubState extends MusicBeatSubstate
     {
         var key = langKeys[curSelected];
         var displayName = Language.getLangDisplayName(key);
+        var locked = isLangLocked(key);
 
         // Flag yükle
         var flagPath = 'ultra/language/$key';
@@ -466,6 +483,13 @@ class LanguageSubState extends MusicBeatSubstate
             previewFlag.loadGraphic(Paths.image(flagPath));
         } catch(e:Dynamic) {
             previewFlag.makeGraphic(200, 130, COL_ITEM_ACT);
+        }
+
+        // Kilitli diller için opaklık düşür
+        if (locked) {
+            previewFlag.alpha = 0.4;
+        } else {
+            previewFlag.alpha = 1.0;
         }
 
         // Flag boyutlandır — maks 200x130, oran koru
@@ -494,31 +518,31 @@ class LanguageSubState extends MusicBeatSubstate
         previewFlagGlow.x = panelCX - (FlxG.width - DIVIDER_X - 40) * 0.5;
         previewFlagGlow.y = 95;
 
-        previewLangName.text = displayName.toUpperCase();
+        previewLangName.text = locked ? "🔒 " + displayName.toUpperCase() : displayName.toUpperCase();
         previewNativeName.text = key.toUpperCase() + "  ·  " + displayName;
 
         // RTL dil kontrolü
         var rtlLangs = ["arabic", "hebrew", "persian", "urdu"];
         var isRTL = rtlLangs.contains(key.toLowerCase());
-        previewTagText.text = isRTL ? "RTL" : "LTR";
-        previewTagText.color = isRTL ? 0xFFFFAA33 : COL_ACCENT;
-        previewTagBG.color   = isRTL ? 0xFFFFAA33 : COL_ACCENT;
+        previewTagText.text = locked ? "LOCKED" : (isRTL ? "RTL" : "LTR");
+        previewTagText.color = locked ? 0xFFFF4444 : (isRTL ? 0xFFFFAA33 : COL_ACCENT);
+        previewTagBG.color   = locked ? 0xFFFF4444 : (isRTL ? 0xFFFFAA33 : COL_ACCENT);
 
         if (animate)
         {
-            previewFlag.alpha = 0;
+            previewFlag.alpha = locked ? 0 : 0;
             previewLangName.alpha = 0;
             previewNativeName.alpha = 0;
             FlxTween.cancelTweensOf(previewFlag);
             FlxTween.cancelTweensOf(previewLangName);
             FlxTween.cancelTweensOf(previewNativeName);
-            FlxTween.tween(previewFlag, {alpha: 1}, 0.2, {ease: FlxEase.quadOut});
+            FlxTween.tween(previewFlag, {alpha: locked ? 0.4 : 1}, 0.2, {ease: FlxEase.quadOut});
             FlxTween.tween(previewLangName, {alpha: 1}, 0.25, {ease: FlxEase.quadOut, startDelay: 0.05});
             FlxTween.tween(previewNativeName, {alpha: 1}, 0.25, {ease: FlxEase.quadOut, startDelay: 0.1});
         }
         else
         {
-            previewFlag.alpha = 1;
+            previewFlag.alpha = locked ? 0.4 : 1;
             previewLangName.alpha = 1;
             previewNativeName.alpha = 1;
         }
@@ -669,16 +693,27 @@ class LanguageSubState extends MusicBeatSubstate
 
 	function confirmSelection():Void
 	{	
-		// 1. Önce key'i tanımla
 		var key = langKeys[curSelected];
+		
+		// Kilitli dil kontrolü
+		if (isLangLocked(key))
+		{
+			FlxG.sound.play(Paths.sound('cancelMenu'), 0.7);
+			AlertMsg.show(
+				Language.getPhrase('language_locked_title', 'Dil Kilitli!'),
+				Language.getPhrase('language_locked_msg', 'Bu dil şu anda kullanılamıyor.'),
+				3,
+				AlertMsg.COLOR_ERROR
+			);
+			return;
+		}
+		
 		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 
-		// 2. Sonra kaydet ve yükle
 		ClientPrefs.data.language = key;
 		ClientPrefs.saveSettings();
 		Language.reloadPhrases();
 		
-		// 3. Sonra yeni dilin phrase'ini göster
 		AlertMsg.show(
 			Language.getPhrase('language_changed_title', 'Dil Değiştirildi!'),
 			Language.getPhrase('language_changed_msg', 'Diliniz değiştirildi.'),
@@ -721,6 +756,7 @@ class LangItem extends FlxSpriteGroup
     var bgBorder:FlxSprite;
     var selectedLine:FlxSprite;
     var icon:FlxSprite;
+    var lockIcon:FlxSprite;
     var label:FlxText;
     var nativeLabel:FlxText;
 
@@ -728,15 +764,17 @@ class LangItem extends FlxSpriteGroup
     static final H:Int = 66;
 
     public var langKey:String;
+    public var isLocked:Bool = false;
 
-    public function new(x:Float, y:Float, key:String, displayName:String, w:Int)
+    public function new(x:Float, y:Float, key:String, displayName:String, w:Int, locked:Bool = false)
     {
         super(x, y);
         langKey = key;
+        isLocked = locked;
 
         // Arka plan
         bg = new FlxSprite().makeGraphic(W, H, 0xFF111128);
-        bg.alpha = 0.8;
+        bg.alpha = locked ? 0.5 : 0.8;
         add(bg);
 
         // Üst kenarlık (ince)
@@ -760,17 +798,37 @@ class LangItem extends FlxSpriteGroup
             icon.makeGraphic(42, 28, 0xFF222244);
         }
         icon.antialiasing = ClientPrefs.data.antialiasing;
+        
+        // Kilitli ise opaklık düşür
+        if (locked) {
+            icon.alpha = 0.4;
+        }
         add(icon);
+
+        // Kilit ikonu
+        if (locked)
+        {
+            lockIcon = new FlxSprite(14 + 42 - 14, (H - 42) * 0.5 + 28 - 14);
+            try {
+                lockIcon.loadGraphic(Paths.image('ultra/language/lock'));
+                lockIcon.setGraphicSize(16, 16);
+                lockIcon.updateHitbox();
+            } catch(e:Dynamic) {
+                lockIcon.makeGraphic(16, 16, 0xFFFF4444);
+            }
+            lockIcon.antialiasing = ClientPrefs.data.antialiasing;
+            add(lockIcon);
+        }
 
         // Dil adı
         label = new FlxText(70, 12, W - 80, displayName, 18);
-        label.setFormat(Paths.font("vcr.ttf"), 18, 0xFFCCCCEE, LEFT,
+        label.setFormat(Paths.font("vcr.ttf"), 18, locked ? 0xFF666677 : 0xFFCCCCEE, LEFT,
             FlxTextBorderStyle.NONE);
         add(label);
 
         // Yerel ad
         nativeLabel = new FlxText(70, 35, W - 80, key.toLowerCase(), 11);
-        nativeLabel.setFormat(Paths.font("vcr.ttf"), 11, 0xFF555577, LEFT);
+        nativeLabel.setFormat(Paths.font("vcr.ttf"), 11, locked ? 0xFF444455 : 0xFF555577, LEFT);
         add(nativeLabel);
     }
 
@@ -782,18 +840,23 @@ class LangItem extends FlxSpriteGroup
 
         if (sel)
         {
-            FlxTween.color(bg, 0.2, bg.color, 0xFF1E1250);
-            bg.alpha = 1.0;
-            FlxTween.tween(selectedLine, {alpha: 1.0}, 0.2);
-            label.color = FlxColor.WHITE;
+            if (!isLocked) {
+                FlxTween.color(bg, 0.2, bg.color, 0xFF1E1250);
+                bg.alpha = 1.0;
+            } else {
+                FlxTween.color(bg, 0.2, bg.color, 0xFF2A1520);
+                bg.alpha = 0.6;
+            }
+            FlxTween.tween(selectedLine, {alpha: isLocked ? 0.3 : 1.0}, 0.2);
+            label.color = isLocked ? 0xFF888899 : FlxColor.WHITE;
             label.size = 19;
         }
         else
         {
             FlxTween.color(bg, 0.2, bg.color, 0xFF111128);
-            bg.alpha = 0.75;
+            bg.alpha = isLocked ? 0.4 : 0.75;
             FlxTween.tween(selectedLine, {alpha: 0.0}, 0.2);
-            label.color = 0xFF9090BB;
+            label.color = isLocked ? 0xFF555566 : 0xFF9090BB;
             label.size = 17;
         }
         label.y = sel ? 10 : 12;

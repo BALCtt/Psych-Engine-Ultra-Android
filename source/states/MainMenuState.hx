@@ -4,6 +4,7 @@ import flixel.FlxObject;
 import flixel.effects.FlxFlicker;
 import lime.app.Application;
 import states.editors.MasterEditorMenu;
+import states.MultiplayerState;
 import options.OptionsState;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
@@ -31,6 +32,12 @@ import objects.VideoSprite;
 import objects.EmojiText;
 import objects.EmojiAtlas;
 import objects.EmojiUtil;
+import objects.AIMenu;
+
+#if MODS_ALLOWED
+import sys.FileSystem;
+import sys.io.File;
+#end
 
 class MainMenuState extends MusicBeatState
 {
@@ -45,7 +52,8 @@ class MainMenuState extends MusicBeatState
 		#if MODS_ALLOWED 'mods', #end
 		#if ACHIEVEMENTS_ALLOWED 'achievements', #end
 		'credits',
-		'settings'
+		'settings',
+		'multiplayer',
 	];
 
 	// UI
@@ -58,6 +66,16 @@ class MainMenuState extends MusicBeatState
 	var cardIcons:Array<FlxSprite> = [];
 	var cardTitles:Array<FlxText> = [];
 	var mouseCursor:FlxSprite;
+	
+	// Mod BG System
+	var wallpaperBG:FlxSprite;
+	var wallpaperImages:Array<String> = [];
+	var wallpaperIndex:Int = 0;
+	var wallpaperTimer:Float = 0;
+	var wallpaperFadeTime:Float = 10;
+	var wallpaperActive:Bool = false;
+	var wallpaperNextBG:FlxSprite;
+	var wallpaperTransitioning:Bool = false;
 	
 	#if VIDEOS_ALLOWED
 	var menuVideoBG:VideoSprite;
@@ -160,7 +178,8 @@ class MainMenuState extends MusicBeatState
 		'mods'         => 0xFF10B981,
 		'achievements' => 0xFF00E5FF,
 		'credits'      => 0xFF10B981,
-		'settings'     => 0xFF64748B
+		'settings'     => 0xFF64748B,
+		'multiplayer'     => 0xFF64748B
 	];
 	
 	var menuIconMap:Map<String, String> = [
@@ -170,7 +189,8 @@ class MainMenuState extends MusicBeatState
 		'mods'         => "🧬",
 		'achievements' => "💎",
 		'credits'      => "",
-		'settings'     => ""
+		'settings'     => "",
+		'multiplayer'     => ""
 	];
 
 	// Boş — create() içinde Language ile doldurulur
@@ -178,11 +198,8 @@ class MainMenuState extends MusicBeatState
 	var menuTitles:Map<String, String>       = [];
 	var newsItems:Array<String>              = [];
 
-	static inline var PLAYER_NAME:String = "Player";
-
-	// ═══════════════════════════════════════════════════════════════
-	// DİL VERİSİNİ DOLDUR
-	// ═══════════════════════════════════════════════════════════════
+	var playerName(get, never):String;
+	inline function get_playerName():String return backend.AuthManager.currentUsername;
 
 	function _buildLanguageData():Void
 	{
@@ -193,7 +210,8 @@ class MainMenuState extends MusicBeatState
 			'mods'         => Language.getPhrase('menu_title_mods',         'Mods'),
 			'achievements' => Language.getPhrase('menu_title_achievements', 'Achievements'),
 			'credits'      => Language.getPhrase('menu_title_credits',      'Credits'),
-			'settings'     => Language.getPhrase('menu_title_settings',     'Settings')
+			'settings'     => Language.getPhrase('menu_title_settings',     'Settings'),
+			'multiplayer'     => Language.getPhrase('menu_title_settings',     'multiplayer')
 		];
 
 		menuDescriptions = [
@@ -203,7 +221,8 @@ class MainMenuState extends MusicBeatState
 			'mods'         => Language.getPhrase('menu_desc_mods',         'Discover community mods!\nA world of unlimited content.'),
 			'achievements' => Language.getPhrase('menu_desc_achievements', 'All your achievements!\nComplete your collection.'),
 			'credits'      => Language.getPhrase('menu_desc_credits',      'Our team!\nThe people behind this project.'),
-			'settings'     => Language.getPhrase('menu_desc_settings',     'Customize the game!\nYou\'re in full control.')
+			'settings'     => Language.getPhrase('menu_desc_settings',     'Customize the game!\nYou\'re in full control.'),
+			'multiplayer'     => Language.getPhrase('menu_desc_settings',     'Customize the game!\nYou\'re in full control.')
 		];
 
 		newsItems = [
@@ -214,10 +233,162 @@ class MainMenuState extends MusicBeatState
 			Language.getPhrase('news_5', 'Let\'s Gooo!')
 		];
 	}
+	
+	function loadWallpaperSystem()
+	{
+		if (!ClientPrefs.data.ultraModSystem) return;
 
-	// ═══════════════════════════════════════════════════════════════
-	// CREATE
-	// ═══════════════════════════════════════════════════════════════
+		#if MODS_ALLOWED
+		wallpaperImages = [];
+		var currentMod:String = Mods.currentModDirectory;
+
+		if (currentMod == null || currentMod.length == 0)
+		{
+			var modList = Mods.parseList();
+			if (modList != null && modList.enabled != null && modList.enabled.length > 0)
+				currentMod = modList.enabled[0];
+		}
+
+		if (currentMod == null || currentMod.length == 0) return;
+
+		var wallpaperDir:String = Paths.mods(currentMod + '/images/wallpapers');
+
+		if (!FileSystem.exists(wallpaperDir)) return;
+		if (!FileSystem.isDirectory(wallpaperDir)) return;
+
+		for (i in 1...11)
+		{
+			var filePath:String = wallpaperDir + '/' + i + '.png';
+			if (FileSystem.exists(filePath))
+				wallpaperImages.push(filePath);
+		}
+
+		if (wallpaperImages.length == 0) return;
+
+		var timePath:String = wallpaperDir + '/time.txt';
+		if (FileSystem.exists(timePath))
+		{
+			try
+			{
+				var timeStr:String = StringTools.trim(File.getContent(timePath));
+				var parsed:Float = Std.parseFloat(timeStr);
+				if (parsed > 0)
+					wallpaperFadeTime = parsed;
+			}
+			catch (e:Dynamic)
+			{
+				wallpaperFadeTime = 10;
+			}
+		}
+		else
+		{
+			wallpaperFadeTime = 10;
+		}
+
+		wallpaperActive = true;
+		wallpaperIndex = 0;
+		wallpaperTimer = 0;
+
+		wallpaperBG = new FlxSprite();
+		try
+		{
+			var bitmapData = openfl.display.BitmapData.fromFile(wallpaperImages[0]);
+			if (bitmapData != null)
+			{
+				wallpaperBG.loadGraphic(flixel.graphics.FlxGraphic.fromBitmapData(bitmapData));
+				wallpaperBG.setGraphicSize(FlxG.width, FlxG.height);
+				wallpaperBG.updateHitbox();
+				wallpaperBG.screenCenter();
+			}
+		}
+		catch (e:Dynamic)
+		{
+			wallpaperActive = false;
+			return;
+		}
+		wallpaperBG.alpha = 0;
+
+		var bgIndex = members.indexOf(bgLayer2);
+		if (bgIndex >= 0)
+			insert(bgIndex + 1, wallpaperBG);
+		else
+			add(wallpaperBG);
+
+		wallpaperNextBG = new FlxSprite();
+		wallpaperNextBG.makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT);
+		wallpaperNextBG.alpha = 0;
+
+		var nextIndex = members.indexOf(wallpaperBG);
+		if (nextIndex >= 0)
+			insert(nextIndex + 1, wallpaperNextBG);
+		else
+			add(wallpaperNextBG);
+
+		FlxTween.tween(wallpaperBG, {alpha: 1}, 1.5, {ease: FlxEase.quartOut});
+		bgLayer2.alpha = 0;
+		#end
+	}
+
+	function updateWallpaper(elapsed:Float)
+	{
+		if (!wallpaperActive) return;
+		if (!ClientPrefs.data.ultraModSystem) return;
+		if (wallpaperImages.length <= 1) return;
+		if (wallpaperTransitioning) return;
+
+		wallpaperTimer += elapsed;
+
+		if (wallpaperTimer >= wallpaperFadeTime)
+		{
+			wallpaperTimer = 0;
+			wallpaperTransitioning = true;
+
+			var nextIndex:Int = (wallpaperIndex + 1) % wallpaperImages.length;
+
+			#if MODS_ALLOWED
+			try
+			{
+				var bitmapData = openfl.display.BitmapData.fromFile(wallpaperImages[nextIndex]);
+				if (bitmapData != null)
+				{
+					wallpaperNextBG.loadGraphic(flixel.graphics.FlxGraphic.fromBitmapData(bitmapData));
+					wallpaperNextBG.setGraphicSize(FlxG.width, FlxG.height);
+					wallpaperNextBG.updateHitbox();
+					wallpaperNextBG.screenCenter();
+					wallpaperNextBG.alpha = 0;
+
+					FlxTween.tween(wallpaperNextBG, {alpha: 1}, 1.5, {ease: FlxEase.quartOut});
+					FlxTween.tween(wallpaperBG, {alpha: 0}, 1.5, {
+						ease: FlxEase.quartOut,
+						onComplete: function(t:FlxTween)
+						{
+							var tempGraphic = wallpaperNextBG.graphic;
+							wallpaperBG.loadGraphic(tempGraphic);
+							wallpaperBG.setGraphicSize(FlxG.width, FlxG.height);
+							wallpaperBG.updateHitbox();
+							wallpaperBG.screenCenter();
+							wallpaperBG.alpha = 1;
+
+							wallpaperNextBG.alpha = 0;
+							wallpaperNextBG.makeGraphic(FlxG.width, FlxG.height, FlxColor.TRANSPARENT);
+
+							wallpaperIndex = nextIndex;
+							wallpaperTransitioning = false;
+						}
+					});
+				}
+				else
+				{
+					wallpaperTransitioning = false;
+				}
+			}
+			catch (e:Dynamic)
+			{
+				wallpaperTransitioning = false;
+			}
+			#end
+		}
+	}
 
 	override function create()
 	{
@@ -236,10 +407,6 @@ class MainMenuState extends MusicBeatState
 		
 		if (!EmojiAtlas.instance.isLoaded())
 			EmojiAtlas.instance.load("emoji_atlas", 32);
-
-		// ═══════════════════════════════════════
-		// ARKA PLAN
-		// ═══════════════════════════════════════
 
 		bgLayer1 = new FlxSprite().makeGraphic(Std.int(FlxG.width * 1.5), Std.int(FlxG.height * 1.5), 0xFF05050a);
 		bgLayer1.screenCenter();
@@ -277,6 +444,8 @@ class MainMenuState extends MusicBeatState
 		#if VIDEOS_ALLOWED
 		}
 		#end
+		
+		loadWallpaperSystem();
 
 		scanline = new FlxBackdrop(null, Y, 0, 2);
 		scanline.makeGraphic(FlxG.width, 4, 0x11FFFFFF);
@@ -292,10 +461,6 @@ class MainMenuState extends MusicBeatState
 
 		createParticles();
 		createFloatingOrbs();
-
-		// ═══════════════════════════════════════
-		// ÜST BAR
-		// ═══════════════════════════════════════
 
 		topBarGlow = new FlxSprite(0, 0).makeGraphic(FlxG.width, 85, currentTheme);
 		topBarGlow.alpha = 0.15;
@@ -333,10 +498,6 @@ class MainMenuState extends MusicBeatState
 		add(greetingText);
 		
 		updateTimeAndGreeting();
-
-		// ═══════════════════════════════════════
-		// MENÜ KARTLARI
-		// ═══════════════════════════════════════
 
 		menuCards = new FlxTypedGroup<FlxSpriteGroup>();
 		add(menuCards);
@@ -392,10 +553,6 @@ class MainMenuState extends MusicBeatState
 			menuCards.add(card);
 		}
 
-		// ═══════════════════════════════════════
-		// AÇIKLAMA PANELİ
-		// ═══════════════════════════════════════
-
 		var descBG = new FlxSprite(FlxG.width - 420, 100).makeGraphic(400, 150, 0xAA000000);
 		add(descBG);
 		
@@ -409,10 +566,6 @@ class MainMenuState extends MusicBeatState
 		descriptionText = new FlxText(FlxG.width - 400, 160, 360, "", 18);
 		descriptionText.setFormat(Paths.font("vcr.ttf"), 18, 0xFFDDDDDD, LEFT);
 		add(descriptionText);
-
-		// ═══════════════════════════════════════
-		// PROFİL PANELİ
-		// ═══════════════════════════════════════
 
 		profilePanelGlow = new FlxSprite(28, 108).makeGraphic(244, 154, 0xFF10B981);
 		profilePanelGlow.alpha = 0.1;
@@ -430,7 +583,7 @@ class MainMenuState extends MusicBeatState
 		profileIcon.setPosition(45, 130);
 		add(profileIcon);
 		
-		profileName = new FlxText(105, 135, 150, PLAYER_NAME, 22);
+		profileName = new FlxText(105, 135, 150, playerName, 22);
 		profileName.setFormat(Paths.font("vcr.ttf"), 22, FlxColor.WHITE, LEFT);
 		add(profileName);
 		
@@ -465,11 +618,7 @@ class MainMenuState extends MusicBeatState
 		profileLevel.visible     = _showProfile;
 		profileXPBar.visible     = _showProfile;
 		profileXPText.visible    = _showProfile;
-
-		// ═══════════════════════════════════════
-		// İSTATİSTİK PANELİ
-		// ═══════════════════════════════════════
-
+		
 		statsPanelGlow = new FlxSprite(28, 278).makeGraphic(244, 164, 0xFFF59E0B);
 		statsPanelGlow.alpha = 0.1;
 		add(statsPanelGlow);
@@ -512,10 +661,6 @@ class MainMenuState extends MusicBeatState
 
 		loadStats();
 
-		// ═══════════════════════════════════════
-		// SON OYNANAN PANELİ
-		// ═══════════════════════════════════════
-
 		lastPlayedPanel = new FlxSprite(30, 460).makeGraphic(240, 120, 0xCC000000);
 		add(lastPlayedPanel);
 		
@@ -557,10 +702,6 @@ class MainMenuState extends MusicBeatState
 
 		loadLastPlayed();
 
-		// ═══════════════════════════════════════
-		// ALT BAR
-		// ═══════════════════════════════════════
-
 		newsPanel = new FlxSprite(0, FlxG.height - 110).makeGraphic(FlxG.width, 40, 0x66000000);
 		add(newsPanel);
 		
@@ -592,11 +733,7 @@ class MainMenuState extends MusicBeatState
 		versionText.setFormat(Paths.font("vcr.ttf"), 16, 0xFF888888, RIGHT);
 		add(versionText);
 		versionText.visible = ClientPrefs.data.showVersionText;
-
-		// ═══════════════════════════════════════
-		// KAMERA
-		// ═══════════════════════════════════════
-
+		
 		camFollow    = new FlxObject(0, 0, 1, 1);
 		camFollowPos = new FlxObject(0, 0, 1, 1);
 		add(camFollow);
@@ -610,6 +747,9 @@ class MainMenuState extends MusicBeatState
 		
 		adminPanel = new AdminPanel();
 		add(adminPanel); 
+
+		// AI
+		AIMenu.addToStage();
 
 		FlxG.camera.fade(FlxColor.BLACK, 0.5, true);
 		
@@ -985,7 +1125,7 @@ class MainMenuState extends MusicBeatState
 		else if (hour >= 18 && hour < 22) greeting = Language.getPhrase('greeting_evening', 'Good evening');
 		else                               greeting = Language.getPhrase('greeting_night',   'Good night');
 		
-		greetingText.text = greeting + ", " + PLAYER_NAME + "!";
+		greetingText.text = greeting + ", " + playerName + "!";
 	}
 
 	// ═══════════════════════════════════════════════════════════════
@@ -1023,6 +1163,8 @@ class MainMenuState extends MusicBeatState
 		);
 		
 		updateParticles(elapsed);
+		updateParticles(elapsed);
+		updateWallpaper(elapsed);
 		updateNews(elapsed);
 		
 		if (Math.floor(ambientPulse) % 30 == 0 && Math.floor(ambientPulse) > 0)
@@ -1055,7 +1197,7 @@ class MainMenuState extends MusicBeatState
 			else if (controls.justPressed('debug_1') || touchPad.buttonE.justPressed)
 			{
 				selectedSomethin = true;
-				MusicBeatState.switchState(new MasterEditorMenu());
+				MusicBeatState.switchState(new MultiplayerState());
 			}
 			
 			if (FlxG.save.data.lastPlayedSong != null && FlxG.save.data.lastPlayedSong != "")

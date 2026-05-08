@@ -76,6 +76,12 @@ class Spanish implements ILanguage
 		"peu_menu_theme_desc"     => "Selecciona el tema para los menús.",
 		"peu_theme_turkey"        => "Türkiye",
 		"peu_theme_original"      => "Original",
+		"peu_ultramodsystem"          => "Sistema Ultra Mod",
+		"peu_ultramodsystem_desc"          => "Cuando se activa, se utiliza el sistema Ultra Mode y se mejora la compatibilidad con Psych Engine Ultra",
+		
+		"reset_score_title" => "¿Borrar el marcador?",
+		"yes"               => "Sí",
+		"no"                => "No",
 
 		// ── Settings screen ───────────────────────────────────────
 		"settings_title"         => "Ajustes",
@@ -130,6 +136,40 @@ class Spanish implements ILanguage
 		"credits_team_label"      => "— EQUIPO —",
 		"credits_rpc"             => "Créditos",
 		"otherteam_peu"           => "otros",
+		
+		"freeplay_title"                => "JUEGO LIBRE",
+		"freeplay_songs"                => "Canciones",
+		"freeplay_result"               => "resultado",
+		"freeplay_random"               => "ALEATORIO",
+		"freeplay_random_subtitle"      => "¡Elige una canción aleatoria!",
+		"freeplay_song_name"            => "NOMBRE DE CANCIÓN",
+		"freeplay_hint_pc"              => "F: Buscar | TAB: Filtrar",
+		"freeplay_hint_mobile"          => "Z: Buscar | Y: Filtrar",
+		"freeplay_search_prompt"        => "BUSCAR",
+		"freeplay_score_label"          => "◈ PUNTUACIÓN",
+		"freeplay_score_label_short"    => "Puntos: ",
+		"freeplay_accuracy_label"       => "Precisión: ",
+		"freeplay_grade_na"             => "N/D",
+		"freeplay_difficulty_label"     => "◈ DIFICULTAD",
+		"freeplay_stats_label"          => "◈ ESTADÍSTICAS",
+		"freeplay_stat_total"           => "Total: ",
+		"freeplay_stat_favorites"       => "Favoritos: ",
+		"freeplay_stat_completed"       => "Completado: ",
+		"freeplay_week_prefix"          => "Semana ",
+		"freeplay_controls_pc"          => "ENTER: Seleccionar  ESC: Volver  SPACE: Reproducir  TAB: Categoría  F: Buscar",
+		"freeplay_controls_mobile"      => "A: Seleccionar  B: Volver  X: Reproducir  Y: Categoría  Z: Buscar",
+		"freeplay_menu_modifiers"       => "MODIFICADORES DE JUEGO",
+		"freeplay_menu_reset"           => "REINICIAR PUNTUACIÓN",
+		"freeplay_menu_back"            => "VOLVER",
+		"freeplay_tip_search_mobile"    => "🔍 Buscar — A: Confirmar  B: Cancelar",
+		"freeplay_tip_searchbox_mobile" => "⌨ Cuadro de búsqueda activo — A/B: Cerrar",
+		"freeplay_tip_category"         => "📂 Categoría: ",
+		"freeplay_tip_fav_added"        => "Añadido a Favoritos: ",
+		"freeplay_tip_fav_removed"      => "Eliminado de Favoritos: ",
+		"freeplay_tip_hidden_added"     => "🙈 Añadido a Ocultos: ",
+		"freeplay_tip_hidden_removed"   => "👁 Eliminado de Ocultos: ",
+		"freeplay_tip_reset"            => "🗑 Reiniciando PUNTUACIÓN...",
+		"freeplay_tip_menu_mobile"      => "↕ Seleccionar  A: Confirmar  B: Volver  ←/→: Dificultad",
 
 		"credits_sec_peu"      => "Psych Engine Ultra",
 		"credits_sec_mobile"   => "Equipo de Portación Móvil",
@@ -138,6 +178,12 @@ class Spanish implements ILanguage
 		"credits_sec_contrib"  => "Contribuidores",
 		"credits_sec_funkin"   => "Equipo de Funkin'",
 		"credits_sec_discord"  => "Discord de Psych Engine",
+		
+		"code_menu_prompt"              => "Ingresa el Código Secreto:",
+		"code_menu_back"                => "Presiona ESC para volver al menú principal",
+		"code_menu_enter_code"          => "Ingresa el Código.",
+		"code_menu_unknown"             => "¡Código Desconocido!",
+		"code_menu_hold_skip"           => "Mantén Presionado para Saltar",
 
 		"credits_role_samet"   => "Fundador y Desarrollador Principal de Psych Engine Ultra",
 		"credits_role_nexus"   => "Traductor de Psych Engine Ultra",
@@ -181,6 +227,8 @@ class Spanish implements ILanguage
 		"graphics_gpu_cache_desc"    => "Si está activo, permite a la GPU cachear texturas, reduciendo el uso de RAM. No activar si tus mods modifican píxeles de sprites.",
 		"graphics_framerate"         => "Tasa de Fotogramas",
 		"graphics_framerate_desc"    => "Bastante auto explicativo, ¿no?",
+		"graphics_potatomode"    => "Modo Patata",
+		"graphics_potatomode_desc"    => "Cuando se activa, desactiva todos los elementos del juego (personajes, fondos, etc.) para ofrecer una experiencia al estilo OSU y mejora considerablemente el rendimiento",
 
 		// ── Gameplay ─────────────────────────────────────────────
 		"gameplay_menu"                 => "Jugabilidad",
@@ -448,6 +496,8 @@ class Spanish implements ILanguage
 		// ── Language ──────────────────────────────────────────────
 		"language_changed_title" => "¡Idioma Cambiado!",
 		"language_changed_msg"   => "Cambiado al Español.",
+		"language_locked_title"  => "¡Idioma Bloqueado!",
+		"language_locked_msg"    => "Este idioma no está disponible actualmente.",
 
 		// ── In-game ───────────────────────────────────────────────
 		"blueballed"    => "Perdiste: {1}",

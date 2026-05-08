@@ -48,6 +48,13 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			'cacheOnGPU',
 			'BOOL');
 		addOption(option);
+		
+		var option:Option = new Option(
+			Language.getPhrase('graphics_potatomode',      'Patates Modu'),
+			Language.getPhrase('graphics_potatomode_desc', 'Aktif Edilirse Oyun-içi herşeyi devre dışı bırakarak (karakterler, arkaplan vs.) "OSU" tarzı sağlar ve performansı ciddi şekilde arttırır.'),
+			'potatomode',
+			BOOL);
+		addOption(option);
 
 		#if !html5
 		var option:Option = new Option(

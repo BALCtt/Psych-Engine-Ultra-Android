@@ -248,11 +248,30 @@ class Paths
 		if (bitmap == null)
 		{
 			var file:String = getPath(key, IMAGE, parentFolder, true);
+			
 			#if MODS_ALLOWED
 			if (FileSystem.exists(file))
-				bitmap = BitmapData.fromFile(file);
-			else #end if (OpenFlAssets.exists(file, IMAGE))
-				bitmap = OpenFlAssets.getBitmapData(file);
+			{
+				// GÜVENLİ YÜKLEME
+				try {
+					bitmap = BitmapData.fromFile(file);
+				} catch(e:Dynamic) {
+					trace('[Paths] BitmapData load failed: $file - $e');
+					SafeLoader.logAssetError('BitmapData', file, Std.string(e));
+					bitmap = null;
+				}
+			}
+			else
+			#end
+			if (OpenFlAssets.exists(file, IMAGE))
+			{
+				try {
+					bitmap = OpenFlAssets.getBitmapData(file);
+				} catch(e:Dynamic) {
+					trace('[Paths] OpenFL BitmapData load failed: $file - $e');
+					bitmap = null;
+				}
+			}
 
 			if (bitmap == null)
 			{
@@ -438,15 +457,30 @@ class Paths
 	{
 		var file:String = getPath(Language.getFileTranslation(key) + '.$SOUND_EXT', SOUND, path, modsAllowed);
 
-		//trace('precaching sound: $file');
 		if(!currentTrackedSounds.exists(file))
 		{
 			#if sys
 			if(FileSystem.exists(file))
-				currentTrackedSounds.set(file, Sound.fromFile(file));
+			{
+				// GÜVENLİ YÜKLEME
+				try {
+					var snd = Sound.fromFile(file);
+					if (snd != null)
+						currentTrackedSounds.set(file, snd);
+				} catch(e:Dynamic) {
+					trace('[Paths] Sound load failed: $file - $e');
+					SafeLoader.logAssetError('Sound', file, Std.string(e));
+				}
+			}
 			#else
 			if(OpenFlAssets.exists(file, SOUND))
-				currentTrackedSounds.set(file, OpenFlAssets.getSound(file));
+			{
+				try {
+					currentTrackedSounds.set(file, OpenFlAssets.getSound(file));
+				} catch(e:Dynamic) {
+					trace('[Paths] OpenFL Sound load failed: $file - $e');
+				}
+			}
 			#end
 			else if(beepOnNull)
 			{

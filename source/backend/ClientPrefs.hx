@@ -20,7 +20,7 @@ import states.TitleState;
 	public var gameOverVibration:Bool = false;
 	public var fpsRework:Bool = false;
 	
-	//P.E.T variables
+	// P.E.U variables
 	public var menuTheme:String = 'V3';
 	public var peuwatermark:Bool = true;
 	public var peuloadingscreen:Bool = true;
@@ -29,6 +29,9 @@ import states.TitleState;
 	public var disableIntroVideo:Bool = false;
 	public var familyGame:Bool = true;
 	public var serverConnection:Bool = true;
+	public var ultraModSystem:Bool = true;
+	public var potatomode:Bool = false;
+	public var testMode:Bool = true;
 	
 	
 	// MainMenu (V3)
@@ -120,6 +123,7 @@ import states.TitleState;
 	public var discordRPC:Bool = true;
 	public var loadingScreen:Bool = true;
 	public var language:String = 'english';
+	public var languageSelected:Bool = false;
 	
 		public var importSaveFile:String = '';
 }
@@ -153,7 +157,8 @@ class ClientPrefs {
 		'debug_1'		=> [SEVEN],
 		'debug_2'		=> [EIGHT],
 		
-		'fullscreen'	=> [F11]
+		'fullscreen'	=> [F11],
+		'toggle_cursor' => [M]
 	];
 	public static var gamepadBinds:Map<String, Array<FlxGamepadInputID>> = [
 		'note_up'		=> [DPAD_UP, Y],

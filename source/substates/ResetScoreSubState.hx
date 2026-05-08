@@ -19,14 +19,13 @@ class ResetScoreSubState extends MusicBeatSubstate
 	var difficulty:Int;
 	var week:Int;
 
-	// Week -1 = Freeplay
 	public function new(song:String, difficulty:Int, character:String, week:Int = -1)
 	{
 		this.song = song;
 		this.difficulty = difficulty;
 		this.week = week;
 
-                controls.isInSubstate = true;
+		controls.isInSubstate = true;
 
 		super();
 
@@ -41,8 +40,8 @@ class ResetScoreSubState extends MusicBeatSubstate
 		bg.scrollFactor.set();
 		add(bg);
 
-		var tooLong:Float = (name.length > 18) ? 0.8 : 1; //Fucking Winter Horrorland
-		var text:Alphabet = new Alphabet(0, 180, Language.getPhrase('reset_score', 'Reset the score of'), true);
+		var tooLong:Float = (name.length > 18) ? 0.8 : 1;
+		var text:Alphabet = new Alphabet(0, 180, Language.getPhrase('reset_score_title', 'Reset the score of'), true);
 		text.screenCenter(X);
 		alphabetArray.push(text);
 		text.alpha = 0;
@@ -63,11 +62,11 @@ class ResetScoreSubState extends MusicBeatSubstate
 			add(icon);
 		}
 
-		yesText = new Alphabet(0, text.y + 150, Language.getPhrase('Yes'), true);
+		yesText = new Alphabet(0, text.y + 150, Language.getPhrase('yes', 'Yes'), true);
 		yesText.screenCenter(X);
 		yesText.x -= 200;
 		add(yesText);
-		noText = new Alphabet(0, text.y + 150, Language.getPhrase('No'), true);
+		noText = new Alphabet(0, text.y + 150, Language.getPhrase('no', 'No'), true);
 		noText.screenCenter(X);
 		noText.x += 200;
 		add(noText);
@@ -113,9 +112,9 @@ class ResetScoreSubState extends MusicBeatSubstate
 			controls.isInSubstate = false;
 			close();
 		}
-		if (touchPad == null){ //sometimes it dosent add the tpad, hopefully this fixes it
-		addTouchPad('LEFT_RIGHT', 'A_B');
-		addTouchPadCamera();
+		if (touchPad == null){
+			addTouchPad('LEFT_RIGHT', 'A_B');
+			addTouchPadCamera();
 		}
 		super.update(elapsed);
 	}
@@ -136,7 +135,7 @@ class ResetScoreSubState extends MusicBeatSubstate
 		bg = FlxDestroyUtil.destroy(bg);
 		alphabetArray = FlxDestroyUtil.destroyArray(alphabetArray);
 		icon = FlxDestroyUtil.destroy(icon);
-                yesText = FlxDestroyUtil.destroy(yesText);
+		yesText = FlxDestroyUtil.destroy(yesText);
 		noText = FlxDestroyUtil.destroy(noText);
 
 		super.destroy();

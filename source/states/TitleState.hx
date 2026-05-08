@@ -8,6 +8,7 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
 import haxe.Json;
+import backend.SafeLoader;
 
 import openfl.Assets;
 import openfl.display.Bitmap;
@@ -22,7 +23,13 @@ import shaders.ColorSwap;
 import states.StoryMenuState;
 import states.MainMenuState;
 
-// TWEEN EKLENTİLERİ İÇİN GEREKLİ KÜTÜPHANELER
+import states.LanguageSelectState;
+import states.AuthState;
+import states.MainMenuState;
+import backend.ClientPrefs;
+import backend.SupabaseClient;
+import backend.AuthManager;
+
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 
@@ -45,6 +52,11 @@ typedef TitleData =
 
 class TitleState extends MusicBeatState
 {
+	// ADD THIS FUNCTION HERE:
+    public static function playFreakyMusic(atVolume:Float = 0)
+    {
+        FlxG.sound.playMusic(Paths.music('freakyMenu'), atVolume);
+    }
 	public static var muteKeys:Array<FlxKey> = [FlxKey.ZERO];
 	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
 	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
@@ -129,6 +141,30 @@ class TitleState extends MusicBeatState
 		}
 		else
 			startCutscenesIn();
+		#end
+		#if sys
+		if (SafeLoader.safeMode)
+		{
+			new FlxTimer().start(1.5, function(_) {
+				var msg = SafeLoader.getSafeModeMessage();
+				
+				if (SafeLoader.failedMods.length > 0)
+				{
+					msg += "\n\n" + SafeLoader.getSafeModeModsInfo() + "\n" + SafeLoader.failedMods.slice(0, 3).join(", ");
+				}
+				
+				msg += "\n\n" + SafeLoader.getSafeModeReenableHint();
+				
+				AlertMsg.show(
+					SafeLoader.getSafeModeTitle(),
+					msg,
+					8,
+					AlertMsg.COLOR_WARNING
+				);
+				
+				SafeLoader.clearSafeMode();
+			});
+		}
 		#end
 	}
 	var logoBl:FlxSprite;
@@ -231,7 +267,6 @@ class TitleState extends MusicBeatState
 		#if TITLE_SCREEN_EASTER_EGG easterEggData(); #end
 		Conductor.bpm = musicBPM;
 
-		// --- LOGO DEĞİŞİKLİKLERİ ---
 		logoBl = new FlxSprite(logoPosition.x, logoPosition.y);
 		// XML YOK. Sadece PNG resmi olarak yüklüyoruz. Resminin adı farklıysa burayı değiştir (örn: 'logo')
 		logoBl.loadGraphic(Paths.image('logoBumpin')); 
@@ -476,16 +511,28 @@ class TitleState extends MusicBeatState
 				titleText.alpha = 1;
 				
 				if(titleText != null) titleText.animation.play('press');
-
 				FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 1);
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
-
 				transitioning = true;
 
 				new FlxTimer().start(1, function(tmr:FlxTimer)
 				{
-					ThemeManager.switchToMainMenu();
 					closedState = true;
+					if (!ClientPrefs.data.languageSelected) {
+						FlxG.switchState(new LanguageSelectState());
+						return;
+					}
+					if (!SupabaseClient.hasToken()) {
+						FlxG.switchState(new AuthState());
+						return;
+					}
+					AuthManager.autoLogin(function(ok) {
+						if (ok) FlxG.switchState(new MainMenuState());
+						else {
+							SupabaseClient.clearToken();
+							FlxG.switchState(new AuthState());
+						}
+					});
 				});
 			}
 			#if TITLE_SCREEN_EASTER_EGG
@@ -670,7 +717,7 @@ class TitleState extends MusicBeatState
 			switch (sickBeats)
 			{
 				case 1:
-					FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+					playFreakyMusic(0);
 					FlxG.sound.music.fadeIn(4, 0, 0.7);
 				case 2:
 					createCoolText(['Psych Engine'], 40);

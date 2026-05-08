@@ -4,6 +4,9 @@ import languages.ILanguage;
 import languages.English;
 import languages.Turkish;
 import languages.Spanish;
+import languages.French;
+import languages.Mexico;
+import languages.Azerbaycan;
 
 class Language
 {
@@ -11,7 +14,7 @@ class Language
     public static var defaultLangKey:String  = 'english';
 
     public static var registeredLanguages:Map<String, ILanguage> = [];
-    private static var _languagesRegistered:Bool = false; // ← DÜZELTME 1: tekrar clear() engeli
+    private static var _languagesRegistered:Bool = false;
 
     #if TRANSLATIONS_ALLOWED
     public static var currentLang:ILanguage = null;
@@ -21,22 +24,28 @@ class Language
 
     public static function registerLanguages():Void
     {
-        if (_languagesRegistered) return; // ← zaten kayıtlıysa tekrar yapma
+        if (_languagesRegistered) return;
         _languagesRegistered = true;
 
-        registeredLanguages.set('english',  new English());
-        registeredLanguages.set('turkish',  new Turkish());
-        registeredLanguages.set('spanish',  new Spanish());
+        // Ana Diller
+        registeredLanguages.set('english',    new English());
+        registeredLanguages.set('turkish',    new Turkish());
+        registeredLanguages.set('spanish',    new Spanish());
+        
+        // Ek Diller (Kilitli olanlar dahil)
+        registeredLanguages.set('french',     new French());
+        registeredLanguages.set('mexico',     new Mexico());
+        registeredLanguages.set('azerbaycan', new Azerbaycan());
     }
-	
-	public static function getAlphabetPath():String
-	{
-		#if TRANSLATIONS_ALLOWED
-		if (currentLang != null && currentLang.alphabetPath != null)
-			return currentLang.alphabetPath;
-		#end
-		return 'alphabet';
-	}
+    
+    public static function getAlphabetPath():String
+    {
+        #if TRANSLATIONS_ALLOWED
+        if (currentLang != null && currentLang.alphabetPath != null)
+            return currentLang.alphabetPath;
+        #end
+        return 'alphabet';
+    }
 
     public static function reloadPhrases():Void
     {
@@ -44,26 +53,33 @@ class Language
             registerLanguages();
 
         #if TRANSLATIONS_ALLOWED
-        // ← DÜZELTME 2: null/boş language key güvenliği
         var langKey:String = (ClientPrefs.data.language != null && ClientPrefs.data.language.length > 0)
             ? ClientPrefs.data.language.toLowerCase().trim()
             : defaultLangKey;
-		final aliases:Map<String, String> = [
-			'en-us'    => 'english',
-			'en'       => 'english',
-			'tr'       => 'turkish',
-			'tr-tr'    => 'turkish',
-			'es'       => 'spanish',
-			'es-es'    => 'spanish',
-		];
-		if (aliases.exists(langKey))
-			langKey = aliases.get(langKey);
+            
+        final aliases:Map<String, String> = [
+            'en-us'    => 'english',
+            'en'       => 'english',
+            'tr'       => 'turkish',
+            'tr-tr'    => 'turkish',
+            'es'       => 'spanish',
+            'es-es'    => 'spanish',
+            'fr'       => 'french',
+            'fr-fr'    => 'french',
+            'es-mx'    => 'mexico',
+            'mx'       => 'mexico',
+            'az'       => 'azerbaycan',
+            'az-az'    => 'azerbaycan',
+        ];
+        
+        if (aliases.exists(langKey))
+            langKey = aliases.get(langKey);
 
         currentLang = registeredLanguages.get(langKey);
 
         if (currentLang == null)
         {
-            trace('[Language] "$langKey" not found,  Turning Back To English.');
+            trace('[Language] "$langKey" not found, Turning Back To English.');
             ClientPrefs.data.language = defaultLangKey;
             currentLang = registeredLanguages.get(defaultLangKey);
         }
@@ -76,7 +92,7 @@ class Language
             : 'alphabet';
         AlphaCharacter.loadAlphabetData(alphaPath);
 
-        trace('[Language] Loaded: ' + langKey + Lambda.count(phrases)); // ← DEBUG
+        trace('[Language] Loaded: ' + langKey + ' (' + Lambda.count(phrases) + ' phrases)');
         #else
         AlphaCharacter.loadAlphabetData();
         #end
@@ -85,7 +101,6 @@ class Language
     inline public static function getPhrase(key:String, ?defaultPhrase:String, values:Array<Dynamic> = null):String
     {
         #if TRANSLATIONS_ALLOWED
-        // ← DÜZELTME 3: phrases null kontrolü
         var str:String = (phrases != null) ? phrases.get(formatKey(key)) : null;
         if (str == null) str = defaultPhrase;
         #else
@@ -96,7 +111,7 @@ class Language
 
         if (values != null)
             for (num => value in values)
-                str = str.replace('{${num + 1}}', Std.string(value)); // ← DÜZELTME 4: Std.string() cast
+                str = str.replace('{${num + 1}}', Std.string(value));
 
         return str;
     }
@@ -104,7 +119,7 @@ class Language
     public static function getFileTranslation(key:String):String
     {
         #if TRANSLATIONS_ALLOWED
-        if (imageOverrides == null) return key; // ← DÜZELTME 5: null guard
+        if (imageOverrides == null) return key;
 
         var trimmed:String = key.trim().toLowerCase();
 

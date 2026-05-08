@@ -1,0 +1,3 @@
+The images here change the background of the main menu
+image name example: 1.png, 2.png etc.
+up to 10.png

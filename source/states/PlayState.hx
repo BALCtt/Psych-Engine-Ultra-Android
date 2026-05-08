@@ -6,6 +6,8 @@ import backend.StageData;
 import backend.WeekData;
 import backend.Song;
 import backend.Rating;
+import backend.LeaderboardAPI;
+import backend.ScoreManager;
 
 import flixel.FlxBasic;
 import flixel.FlxObject;
@@ -209,6 +211,7 @@ class PlayState extends MusicBeatState
 
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
+	public var flameStreak:FlameStreak;
 	public var camHUD:FlxCamera;
 	public var camBar:FlxCamera;
 	public var camGame:FlxCamera;
@@ -397,20 +400,24 @@ class PlayState extends MusicBeatState
 		dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
 		gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
 
-		switch (curStage)
+		if (!ClientPrefs.data.potatomode)
 		{
-			case 'stage': new StageWeek1(); 			//Week 1
-			case 'spooky': new Spooky();				//Week 2
-			case 'philly': new Philly();				//Week 3
-			case 'limo': new Limo();					//Week 4
-			case 'mall': new Mall();					//Week 5 - Cocoa, Eggnog
-			case 'mallEvil': new MallEvil();			//Week 5 - Winter Horrorland
-			case 'school': new School();				//Week 6 - Senpai, Roses
-			case 'schoolEvil': new SchoolEvil();		//Week 6 - Thorns
-			case 'tank': new Tank();					//Week 7 - Ugh, Guns, Stress
-			case 'phillyStreets': new PhillyStreets(); 	//Weekend 1 - Darnell, Lit Up, 2Hot
-			case 'phillyBlazin': new PhillyBlazin();	//Weekend 1 - Blazin
+			switch (curStage)
+			{
+				case 'stage': new StageWeek1();
+				case 'spooky': new Spooky();
+				case 'philly': new Philly();
+				case 'limo': new Limo();
+				case 'mall': new Mall();
+				case 'mallEvil': new MallEvil();
+				case 'school': new School();
+				case 'schoolEvil': new SchoolEvil();
+				case 'tank': new Tank();
+				case 'phillyStreets': new PhillyStreets();
+				case 'phillyBlazin': new PhillyBlazin();
+			}
 		}
+		
 		if(isPixelStage) introSoundsSuffix = '-pixel';
 
 		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
@@ -419,35 +426,48 @@ class PlayState extends MusicBeatState
 		add(luaDebugGroup);
 		#end
 
-		if (!stageData.hide_girlfriend)
+		if (!ClientPrefs.data.potatomode)
 		{
-			if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf'; //Fix for the Chart Editor
-			gf = new Character(0, 0, SONG.gfVersion);
-			startCharacterPos(gf);
-			gfGroup.scrollFactor.set(0.95, 0.95);
-			gfGroup.add(gf);
-		}
+			if (!stageData.hide_girlfriend)
+			{
+				if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf';
+				gf = new Character(0, 0, SONG.gfVersion);
+				startCharacterPos(gf);
+				gfGroup.scrollFactor.set(0.95, 0.95);
+				gfGroup.add(gf);
+			}
 
-		dad = new Character(0, 0, SONG.player2);
-		startCharacterPos(dad, true);
-		dadGroup.add(dad);
+			dad = new Character(0, 0, SONG.player2);
+			startCharacterPos(dad, true);
+			dadGroup.add(dad);
 
-		boyfriend = new Character(0, 0, SONG.player1, true);
-		startCharacterPos(boyfriend);
-		boyfriendGroup.add(boyfriend);
-		
-		if(stageData.objects != null && stageData.objects.length > 0)
-		{
-			var list:Map<String, FlxSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
-			for (key => spr in list)
-				if(!StageData.reservedNames.contains(key))
-					variables.set(key, spr);
+			boyfriend = new Character(0, 0, SONG.player1, true);
+			startCharacterPos(boyfriend);
+			boyfriendGroup.add(boyfriend);
 		}
 		else
 		{
-			add(gfGroup);
-			add(dadGroup);
-			add(boyfriendGroup);
+			dad = new Character(0, 0, SONG.player2);
+			boyfriend = new Character(0, 0, SONG.player1, true);
+			dad.visible = false;
+			boyfriend.visible = false;
+		}
+		
+		if (!ClientPrefs.data.potatomode)
+		{
+			if(stageData.objects != null && stageData.objects.length > 0)
+			{
+				var list:Map<String, FlxSprite> = StageData.addObjectsToState(stageData.objects, !stageData.hide_girlfriend ? gfGroup : null, dadGroup, boyfriendGroup, this);
+				for (key => spr in list)
+					if(!StageData.reservedNames.contains(key))
+						variables.set(key, spr);
+			}
+			else
+			{
+				add(gfGroup);
+				add(dadGroup);
+				add(boyfriendGroup);
+			}
 		}
 		
 		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
@@ -490,9 +510,13 @@ class PlayState extends MusicBeatState
 		#if HSCRIPT_ALLOWED startHScriptsNamed('stages/' + curStage + '.hx'); #end
 
 		// CHARACTER SCRIPTS
-		if(gf != null) startCharacterScripts(gf.curCharacter);
-		startCharacterScripts(dad.curCharacter);
-		startCharacterScripts(boyfriend.curCharacter);
+		// CHARACTER SCRIPTS
+		if (!ClientPrefs.data.potatomode)
+		{
+			if(gf != null) startCharacterScripts(gf.curCharacter);
+			startCharacterScripts(dad.curCharacter);
+			startCharacterScripts(boyfriend.curCharacter);
+		}
 		#end
 
 		uiGroup = new FlxSpriteGroup();
@@ -560,15 +584,15 @@ class PlayState extends MusicBeatState
 		reloadHealthBarColors();
 		uiGroup.add(healthBar);
 
-		iconP1 = new HealthIcon(boyfriend.healthIcon, true);
+		iconP1 = new HealthIcon(ClientPrefs.data.potatomode ? 'face' : boyfriend.healthIcon, true);
 		iconP1.y = healthBar.y - 75;
-		iconP1.visible = !ClientPrefs.data.hideHud;
+		iconP1.visible = !ClientPrefs.data.hideHud && !ClientPrefs.data.potatomode;
 		iconP1.alpha = ClientPrefs.data.healthBarAlpha;
 		uiGroup.add(iconP1);
 
-		iconP2 = new HealthIcon(dad.healthIcon, false);
+		iconP2 = new HealthIcon(ClientPrefs.data.potatomode ? 'face' : dad.healthIcon, false);
 		iconP2.y = healthBar.y - 75;
-		iconP2.visible = !ClientPrefs.data.hideHud;
+		iconP2.visible = !ClientPrefs.data.hideHud && !ClientPrefs.data.potatomode;
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
 		uiGroup.add(iconP2);
 
@@ -578,6 +602,13 @@ class PlayState extends MusicBeatState
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
 		uiGroup.add(scoreTxt);
+
+		// Initialize Flame Streak indicator
+		// Position flame next to healthbar on right side (more to the left)
+		flameStreak = new FlameStreak(FlxG.width - 250, 160);
+		flameStreak.scrollFactor.set();
+		uiGroup.add(flameStreak);
+		flameStreak.setChildrenGroup(uiGroup);
 
 		botplayTxt = new FlxText(400, healthBar.y - 90, FlxG.width - 800, Language.getPhrase("Botplay").toUpperCase(), 32);
 		botplayTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -671,6 +702,9 @@ class PlayState extends MusicBeatState
 		addTouchPad('NONE', 'P');
 		addTouchPadCamera();
 		#end
+		
+		if (ClientPrefs.data.potatomode)
+			camGame.bgColor = FlxColor.BLACK;
 
 		super.create();
 		if (ClientPrefs.data.peuwatermark) {
@@ -690,6 +724,14 @@ class PlayState extends MusicBeatState
 				AlertMsg.COLOR_WARNING
 			);
 		}
+		
+		LeaderboardAPI.submitScore(
+			backend.AuthManager.currentUsername,  // oyuncu adı
+			PlayState.SONG.song,        // şarkı adı
+			songScore,                  // skor
+			ratingPercent,              // accuracy
+			ratingName                  // SS, S, A vs.
+		);
 
 		if(eventNotes.length < 1) checkEventNote();
 	}
@@ -759,6 +801,7 @@ class PlayState extends MusicBeatState
 	#end
 
 	public function reloadHealthBarColors() {
+		if (ClientPrefs.data.potatomode) return;
 		healthBar.setColors(FlxColor.fromRGB(dad.healthColorArray[0], dad.healthColorArray[1], dad.healthColorArray[2]),
 			FlxColor.fromRGB(boyfriend.healthColorArray[0], boyfriend.healthColorArray[1], boyfriend.healthColorArray[2]));
 	}
@@ -1777,6 +1820,9 @@ class PlayState extends MusicBeatState
 		updateIconsScale(elapsed);
 		updateIconsPosition();
 
+		// Update flame streak based on current combo
+		if(flameStreak != null) flameStreak.updateCombo(combo);
+
 		if (startedCountdown && !paused)
 		{
 			Conductor.songPosition += elapsed * 1000 * playbackRate;
@@ -2468,6 +2514,26 @@ class PlayState extends MusicBeatState
 				if(daNote != null && daNote.strumTime < songLength - Conductor.safeZoneOffset)
 					health -= 0.05 * healthLoss;
 			}
+			
+			ScoreManager.submitScore(
+				PlayState.SONG.song,                    // şarkı adı
+				Difficulty.getString(PlayState.storyDifficulty),              // difficulty
+				songScore,                              // skor
+				ratingPercent,                          // accuracy (0-100)
+				ratingName,                             // SS, S, A, B vs.
+				songMisses,                             // miss sayısı
+				Std.int(combo)                          // max combo
+			);
+			
+			ScoreManager.onScoreRejected = function(reason) {
+				trace("[DEBUG] REJECTED: " + reason);
+			};
+			ScoreManager.onScoreSubmitted = function(up, delta, level, acc) {
+				trace("[DEBUG] SUCCESS: up=" + up + " delta=" + delta);
+			};
+			ScoreManager.onNotImproved = function(existing) {
+				trace("[DEBUG] NOT_IMPROVED existing=" + existing);
+			};
 
 			if(doDeathCheck()) {
 				return false;
@@ -3031,6 +3097,9 @@ class PlayState extends MusicBeatState
 
 		var lastCombo:Int = combo;
 		combo = 0;
+		
+		// Hide flame streak when combo breaks
+		if(flameStreak != null) flameStreak.hideFlame();
 
 		health -= subtract * healthLoss;
 		songScore -= 10;

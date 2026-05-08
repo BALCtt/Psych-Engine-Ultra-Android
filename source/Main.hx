@@ -1,5 +1,6 @@
 package;
 
+import backend.SafeLoader;
 import objects.AlertMgr;
 import backend.ServerAlertSystem;
 import debug.FPSCounter;
@@ -33,7 +34,6 @@ import backend.Highscore;
 @:cppFileCode('#define GAMEMODE_AUTO')
 #end
 
-// // // // // // // // //
 class Main extends Sprite
 {
 	public static final game = {
@@ -64,6 +64,37 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+		
+		#if sys
+		trace('[Main] Initializing SafeLoader...');
+		try {
+			SafeLoader.setupExceptionHandler();
+			var initSuccess = SafeLoader.init();
+			
+			if (SafeLoader.safeMode)
+			{
+				trace('[Main] ⚠️ SAFE MODE ACTIVE - Mods have been disabled due to previous crash');
+				trace('[Main] Crash reason: ${SafeLoader.lastCrashReason}');
+				if (SafeLoader.failedMods.length > 0)
+					trace('[Main] Failed mods: ${SafeLoader.failedMods.join(", ")}');
+			}
+			else if (initSuccess)
+			{
+				trace('[Main] SafeLoader initialized successfully');
+			}
+		} catch(e:Dynamic) {
+			trace('[Main] ⚠️ SafeLoader init failed: $e');
+			trace('[Main] Attempting emergency recovery...');
+			// Emergency recovery - modsList'i sıfırla
+			try {
+				SafeLoader.resetModsList();
+				SafeLoader.safeMode = true;
+			} catch(e2:Dynamic) {
+				trace('[Main] Emergency recovery failed: $e2');
+			}
+		}
+		#end
+		
 		#if mobile
 		#if android
 		StorageUtil.requestPermissions();
@@ -81,9 +112,19 @@ class Main extends Sprite
 		#end
 
 		#if LUA_ALLOWED
-		Mods.pushGlobalMods();
+		// Safe mode'daysa modları yükleme
+		if (!SafeLoader.safeMode) {
+			Mods.pushGlobalMods();
+		}
 		#end
-		Mods.loadTopMod();
+		
+		// Safe mode'daysa currentModDirectory'yi sıfırla
+		if (!SafeLoader.safeMode) {
+			Mods.loadTopMod();
+		} else {
+			Mods.currentModDirectory = '';
+			trace('[Main] Skipping mod loading due to safe mode');
+		}
 
 		FlxG.save.bind('funkin', CoolUtil.getSavePath());
 		Highscore.load();
@@ -142,6 +183,11 @@ class Main extends Sprite
 			msgInfo += ' $x';
 			if (PlayState.instance != null)
 				PlayState.instance.addTextToDebug('FATAL: $msgInfo', 0xFFBB0000);
+				
+			// Fatal error durumunda SafeLoader'a bildir
+			#if sys
+			SafeLoader.createCrashFlag("HScript Fatal: " + x);
+			#end
 		}
 		#end
 
@@ -201,8 +247,15 @@ class Main extends Sprite
 		#end
 
 		Application.current.window.vsync = ClientPrefs.data.vsync;
+		#if desktop
+		Lib.application.window.onClose.add(function() {
+			#if sys
+			trace('[Main] Clean exit - clearing crash flag');
+			SafeLoader.onCleanExit();
+			#end
+		});
+		#end
 
-		// shader coords fix
 		FlxG.signals.gameResized.add(function (w, h) {
 			if(fpsVar != null)
 				fpsVar.positionFPS(10, 3, Math.min(w / FlxG.width, h / FlxG.height));

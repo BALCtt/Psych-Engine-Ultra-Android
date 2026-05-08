@@ -25,6 +25,8 @@ import mobile.backend.MobileData;
 import mobile.input.MobileInputManager;
 import mobile.backend.TouchUtil;
 
+import backend.SupabaseClient;
+
 import objects.AlertMgr;
 
 // Android

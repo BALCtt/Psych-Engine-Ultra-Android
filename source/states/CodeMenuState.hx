@@ -18,20 +18,18 @@ class CodeMenuState extends MusicBeatState
 	var codeInputText:FlxText;
 	var backText:FlxText;
 	
-	// Gizli kod listesi - kolay eklemek ve yönetmek için
 	var secretCodes:Map<String, String> = [
-		"aminogludublaj" => "ubey",           // Video dosyası adı
-		"nexus" => "nexus",        // Video dosyası adı
-		"debug" => "debug",          // Video dosyası adı
-		"easter" => "easter",        // Video dosyası adı
-		"surprise" => "surprise",    // Video dosyası adı
+		"aminogludublaj" => "ubey",
+		"nexus" => "nexus",
+		"debug" => "debug",
+		"easter" => "easter",
+		"surprise" => "surprise",
 	];
 	
 	var musicWasStopped:Bool = false;
 	var currentVideo:VideoSprite = null;
 	var warp:FlxSprite;
 	
-	// Video skip sistemi
 	var isVideoPlaying:Bool = false;
 	var skipHoldTime:Float = 0;
 	var skipRequiredTime:Float = 1.5;
@@ -43,18 +41,16 @@ class CodeMenuState extends MusicBeatState
 	{
 		super.create();
 
-		// Dark background
 		var bg:FlxSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0xFF000000);
 		bg.scrollFactor.set();
 		bg.alpha = 0.8;
 		add(bg);
 
-		// Code entry UI
 		codeBG = new FlxSprite(0, FlxG.height / 2 - 80).makeGraphic(FlxG.width, 160, 0xCC111111);
 		codeBG.scrollFactor.set();
 		add(codeBG);
 
-		codePrompt = new FlxText(0, codeBG.y + 12, FlxG.width, "Gizli Kodu Girin:", 32);
+		codePrompt = new FlxText(0, codeBG.y + 12, FlxG.width, Language.getPhrase('code_menu_prompt', 'Enter Secret Code:'), 32);
 		codePrompt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER);
 		codePrompt.scrollFactor.set();
 		add(codePrompt);
@@ -64,20 +60,17 @@ class CodeMenuState extends MusicBeatState
 		codeInputText.scrollFactor.set();
 		add(codeInputText);
 
-		// Info text
-		backText = new FlxText(0, FlxG.height - 40, FlxG.width, "ESC tuşu ile ana menüye geri dön");
+		backText = new FlxText(0, FlxG.height - 40, FlxG.width, Language.getPhrase('code_menu_back', 'Press ESC to return to main menu'));
 		backText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		backText.scrollFactor.set();
 		add(backText);
 
-		// Müziği değiştir
 		if (FlxG.sound.music != null && FlxG.sound.music.playing)
 		{
 			FlxG.sound.music.stop();
 		}
 		FlxG.sound.playMusic(Paths.music('codeMenu'), 0.7);
 
-		// Add keyboard event listener
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
 
@@ -85,7 +78,6 @@ class CodeMenuState extends MusicBeatState
 	{
 		if (!codeEntryActive)
 		{
-			// Video oynatılırken space'ı ignore et - update() da kontrol edilecek
 			if (isVideoPlaying && event.keyCode == 32)
 			{
 				event.preventDefault();
@@ -97,7 +89,6 @@ class CodeMenuState extends MusicBeatState
 		var char = event.charCode;
 		var code = event.keyCode;
 
-		// Regular text input (letters, numbers, space)
 		if (char >= 32 && char <= 126)
 		{
 			typedCode += String.fromCharCode(char).toLowerCase();
@@ -105,7 +96,6 @@ class CodeMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 
-		// Backspace (code 8)
 		if (code == 8)
 		{
 			typedCode = if (typedCode.length > 0) typedCode.substr(0, typedCode.length - 1) else "";
@@ -113,13 +103,11 @@ class CodeMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 
-		// Enter (code 13)
 		if (code == 13)
 		{
 			submitCode();
 		}
 
-		// Escape (code 27)
 		if (code == 27)
 		{
 			closeCodeEntry();
@@ -134,25 +122,21 @@ class CodeMenuState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-		// Video oynatılırken space tuşu hold sistemi
 		if (isVideoPlaying && currentVideo != null)
 		{
 			var spaceDown = FlxG.keys.pressed.SPACE;
 			
 			if (spaceDown && !spacePressed)
 			{
-				// Tuş ilk basıldığında
 				spacePressed = true;
 				skipHoldTime = 0;
 				createSkipUI();
 			}
 			else if (spaceDown && spacePressed)
 			{
-				// Tuş tutulduğunda
 				skipHoldTime += elapsed;
 				updateSkipUI();
 				
-				// Yükleme tamamlandı
 				if (skipHoldTime >= skipRequiredTime)
 				{
 					spacePressed = false;
@@ -163,7 +147,6 @@ class CodeMenuState extends MusicBeatState
 			}
 			else if (!spaceDown && spacePressed)
 			{
-				// Tuş bırakıldığında
 				spacePressed = false;
 				skipHoldTime = 0;
 				destroySkipUI();
@@ -175,18 +158,15 @@ class CodeMenuState extends MusicBeatState
 
 	function checkKeys()
 	{
-		// Bu fonksiyon artık kullanılmıyor
-		// onKeyDown event listener'ı kulllanıyoruz
 	}
 
 	function submitCode()
 	{
 		var entered = typedCode.trim().toLowerCase();
 		
-		// Eğer kod yazılmamışsa hata göster
 		if (entered.length == 0)
 		{
-			codeInputText.text = "Kodu Gir.";
+			codeInputText.text = Language.getPhrase('code_menu_enter_code', 'Enter Code.');
 			codeInputText.color = FlxColor.RED;
 			FlxG.sound.play(Paths.sound('wrong'));
 			new FlxTimer().start(1.5, function(timer:FlxTimer) {
@@ -195,7 +175,6 @@ class CodeMenuState extends MusicBeatState
 			return;
 		}
 		
-		// Gizli kod listesinde arama yap
 		if (secretCodes.exists(entered))
 		{
 			var videoName = secretCodes.get(entered);
@@ -203,8 +182,7 @@ class CodeMenuState extends MusicBeatState
 		}
 		else
 		{
-			// Bilinmeyen kod
-			codeInputText.text = "Bilinmeyen Kod!";
+			codeInputText.text = Language.getPhrase('code_menu_unknown', 'Unknown Code!');
 			codeInputText.color = FlxColor.RED;
 			FlxG.sound.play(Paths.sound('wrong'));
 			new FlxTimer().start(1.5, function(timer:FlxTimer) {
@@ -219,7 +197,6 @@ class CodeMenuState extends MusicBeatState
 	{
 		codeEntryActive = false;
 		typedCode = "";
-		// FlxG.sound.play(Paths.sound('cancelMenu'));
 		if (FlxG.sound.music != null && FlxG.sound.music.playing)
 		{
 			FlxG.sound.music.stop();
@@ -236,7 +213,6 @@ class CodeMenuState extends MusicBeatState
 			isVideoPlaying = true;
 			skipHoldTime = 0;
 			
-			// Müziği durdur
 			if (FlxG.sound.music != null && FlxG.sound.music.playing)
 			{
 				FlxG.sound.music.stop();
@@ -246,7 +222,6 @@ class CodeMenuState extends MusicBeatState
 			var file:String = Paths.video(videoName);
 			currentVideo = new VideoSprite(file, false, true, false);
 			
-			// Video bittiğinde callback
 			currentVideo.finishCallback = function() {
 				isVideoPlaying = false;
 				destroySkipUI();
@@ -266,14 +241,12 @@ class CodeMenuState extends MusicBeatState
 
 	function createSkipUI()
 	{
-		// Loading circle (sağ alt köşe)
 		skipLoadingCircle = new FlxSprite(FlxG.width - 120, FlxG.height - 120);
 		skipLoadingCircle.makeGraphic(100, 100, 0x00000000);
 		skipLoadingCircle.scrollFactor.set();
 		add(skipLoadingCircle);
 		
-		// Skip text (orta-aşağı)
-		skipText = new FlxText(0, FlxG.height - 100, FlxG.width, "Geçmek için Basılı Tutun");
+		skipText = new FlxText(0, FlxG.height - 100, FlxG.width, Language.getPhrase('code_menu_hold_skip', 'Hold to Skip'));
 		skipText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER);
 		skipText.scrollFactor.set();
 		skipText.alpha = 0;
@@ -284,21 +257,17 @@ class CodeMenuState extends MusicBeatState
 	{
 		if (skipLoadingCircle != null)
 		{
-			// Loading circle'ı progressle çiz
 			var progress = skipHoldTime / skipRequiredTime;
 			skipLoadingCircle.makeGraphic(100, 100, 0x00000000);
 			
-			// Circle border
 			drawCircle(skipLoadingCircle, 50, 50, 45, FlxColor.WHITE, progress);
 			
-			// Inner fill
 			if (progress > 0)
 			{
 				drawCircle(skipLoadingCircle, 50, 50, 40, FlxColor.LIME, progress);
 			}
 		}
 		
-		// Skip text'i aydınlat (fade in/out)
 		if (skipText != null)
 		{
 			var alpha = Math.sin(skipHoldTime * 4) * 0.5 + 0.5;
@@ -308,7 +277,6 @@ class CodeMenuState extends MusicBeatState
 
 	function drawCircle(sprite:FlxSprite, centerX:Int, centerY:Int, radius:Float, color:FlxColor, progress:Float)
 	{
-		// Basit circle çizimi (progress'e göre)
 		var angle = 0.0;
 		var segments = 30;
 		var maxAngle = Math.PI * 2 * progress;
@@ -355,10 +323,8 @@ class CodeMenuState extends MusicBeatState
 
 	function stopVideo()
 	{
-		// Skip UI'ı kaldır
 		destroySkipUI();
 		
-		// Video sprite'ı kaldır
 		if (currentVideo != null)
 		{
 			if (FlxG.state != null && FlxG.state.members.contains(currentVideo))
@@ -369,25 +335,21 @@ class CodeMenuState extends MusicBeatState
 		
 		isVideoPlaying = false;
 		
-		// CodeMenuState'e geri dön
 		returnToCodeMenu();
 	}
 
 	function returnToCodeMenu()
 	{
-		// Müziği tekrar başlat
 		if (musicWasStopped && FlxG.sound.music != null)
 		{
 			FlxG.sound.music.play();
 			musicWasStopped = false;
 		}
 		
-		// Kodu sil
 		typedCode = "";
 		codeInputText.text = "";
 		codeInputText.color = FlxColor.YELLOW;
 		
-		// Yazı girişini tekrar aktif et
 		codeEntryActive = true;
 	}
 }

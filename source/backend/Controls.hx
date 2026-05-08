@@ -81,6 +81,9 @@ class Controls
 	private function get_BACK() return justPressed('back');
 	private function get_PAUSE() return justPressed('pause');
 	private function get_RESET() return justPressed('reset');
+	
+	public var TOGGLE_CURSOR(get, never):Bool;
+	private function get_TOGGLE_CURSOR() return justPressed('toggle_cursor');
 
 	//Gamepad, Keyboard & Mobile stuff
 	public var keyboardBinds:Map<String, Array<FlxKey>>;

@@ -1,0 +1,3 @@
+# Grid texture placeholder
+# This file represents the grid pattern used in the V2 menu backgrounds
+# The actual implementation should use a proper 32x32 seamless grid texture

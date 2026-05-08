@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="flame_yellow.png">
+	<SubTexture name="fire0001" x="0" y="0" width="500" height="500"/>
+	<SubTexture name="fire0002" x="500" y="0" width="500" height="500"/>
+	<SubTexture name="fire0003" x="1000" y="0" width="500" height="500"/>
+	<SubTexture name="fire0004" x="1500" y="0" width="500" height="500"/>
+	<SubTexture name="fire0005" x="0" y="500" width="500" height="500"/>
+	<SubTexture name="fire0006" x="500" y="500" width="500" height="500"/>
+	<SubTexture name="fire0007" x="1000" y="500" width="500" height="500"/>
+	<SubTexture name="fire0008" x="1500" y="500" width="500" height="500"/>
+	<SubTexture name="fire0009" x="0" y="1000" width="500" height="500"/>
+	<SubTexture name="fire0010" x="500" y="1000" width="500" height="500"/>
+	<SubTexture name="fire0011" x="1000" y="1000" width="500" height="500"/>
+	<SubTexture name="fire0012" x="1500" y="1000" width="500" height="500"/>
+	<SubTexture name="fire0013" x="0" y="1500" width="500" height="500"/>
+	<SubTexture name="fire0014" x="500" y="1500" width="500" height="500"/>
+	<SubTexture name="fire0015" x="1000" y="1500" width="500" height="500"/>
+	<SubTexture name="fire0016" x="1500" y="1500" width="500" height="500"/>
+</TextureAtlas>

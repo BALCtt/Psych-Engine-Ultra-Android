@@ -59,6 +59,14 @@ class PEUSettingsState extends BaseOptionsMenu
 			['V3', Language.getPhrase('peu_theme_turkey', 'Türkiye'), Language.getPhrase('peu_theme_original', 'Original'), 'V1']
 		);
 		addOption(option);
+		
+		option = new Option(
+			Language.getPhrase('peu_ultramodsystem',      'Ultra Mod System'),
+			Language.getPhrase('peu_ultramodsystem_desc', 'if enabled, the Ultra Mode system is used and becomes more compatible with the Psych Engine Ultra'),
+			'ultraModSystem',
+			'BOOL'
+		);
+		addOption(option);
 
 		super();
 	}

@@ -139,9 +139,21 @@ class Mods
 				#else
 				var rawJson:String = Assets.getText(path);
 				#end
-				if(rawJson != null && rawJson.length > 0) return tjson.TJSON.parse(rawJson);
+				
+				if(rawJson != null && rawJson.length > 0)
+				{
+					// GÜVENLİ JSON PARSE
+					try {
+						return tjson.TJSON.parse(rawJson);
+					} catch(jsonError:Dynamic) {
+						trace('[Mods] Invalid pack.json in $folder: $jsonError');
+						SafeLoader.failedMods.push(folder);
+						return null;
+					}
+				}
 			} catch(e:Dynamic) {
-				trace(e);
+				trace('[Mods] Error reading pack.json for $folder: $e');
+				SafeLoader.failedMods.push(folder);
 			}
 		}
 		#end
@@ -182,25 +194,45 @@ class Mods
 
 	public static var updatedOnState:Bool = false;
 
-	inline public static function parseList():ModsList
+	public static function parseList():ModsList
 	{
 		if(!updatedOnState) updateModList();
 		var list:ModsList = {enabled: [], disabled: [], all: []};
 
 		#if MODS_ALLOWED
 		try {
-			for (mod in CoolUtil.coolTextFile(getModsListPath()))
+			var modsListPath = getModsListPath();
+			
+			// Dosya yoksa boş liste döndür
+			if (!FileSystem.exists(modsListPath))
+			{
+				trace('[Mods] modsList.txt not found, returning empty list');
+				return list;
+			}
+			
+			for (mod in CoolUtil.coolTextFile(modsListPath))
 			{
 				if(mod.trim().length < 1) continue;
 				var dat = mod.split("|");
+				
+				// Mod klasörü var mı kontrol et
+				var modFolder = dat[0];
+				if (!FileSystem.exists(Paths.mods(modFolder)) || !FileSystem.isDirectory(Paths.mods(modFolder)))
+				{
+					trace('[Mods] Mod folder not found, skipping: $modFolder');
+					continue;
+				}
+				
 				list.all.push(dat[0]);
 				if (dat[1] == "1")
 					list.enabled.push(dat[0]);
 				else
 					list.disabled.push(dat[0]);
 			}
-		} catch(e) {
-			trace(e);
+		} catch(e:Dynamic) {
+			trace('[Mods] Error parsing modsList: $e');
+			// Hata durumunda boş liste döndür
+			SafeLoader.createCrashFlag("ModsList parse error: " + Std.string(e));
 		}
 		#end
 		return list;

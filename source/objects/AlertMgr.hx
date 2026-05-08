@@ -12,6 +12,8 @@ import openfl.events.MouseEvent;
 import openfl.events.Event;
 import openfl.geom.ColorTransform;
 
+using StringTools;
+
 class AlertMessage extends Sprite
 {
     public static inline var COLOR_INFO:Int    = 0xFF4FC3F7;
@@ -38,7 +40,7 @@ class AlertMessage extends Sprite
 
     var _accentColor:Int;
     var _totalTime:Float;
-    var _elapsed:Float       = 0;
+    var _elapsed:Float        = 0;
     var _state:AlertState    = SLIDING_IN;
     var _slideProgress:Float = 0;
     var _targetY:Float       = 0;
@@ -57,6 +59,8 @@ class AlertMessage extends Sprite
     {
         while (numChildren > 0) removeChildAt(0);
 
+        var s:Float = getScale();
+
         _accentColor   = accentColor;
         _totalTime     = Math.max(1, duration);
         _elapsed       = 0;
@@ -68,68 +72,71 @@ class AlertMessage extends Sprite
 
         var fontName:String = Assets.getFont('assets/fonts/vcr.ttf').fontName;
 
-        _titleField = _makeField(fontName, 20, 0xFFFFFFFF, true);
+        _titleField = _makeField(fontName, Std.int(20 * s), 0xFFFFFFFF, true);
         _titleField.text = titleText ?? '';
 
-        _contentField = _makeField(fontName, 15, 0xFFCCCCCC, false);
+        _contentField = _makeField(fontName, Std.int(15 * s), 0xFFCCCCCC, false);
         _contentField.text = messageText ?? '';
 
         var hasContent:Bool = (messageText ?? '').trim().length > 0;
 
         var rawTW:Float    = _measureTextWidth(_titleField);
         var rawCW:Float    = hasContent ? _measureTextWidth(_contentField) : 0;
-        var contentW:Float = Math.min(Math.max(Math.max(rawTW, rawCW), MIN_CONTENT_W), MAX_CONTENT_W);
+        
+        var sPadding:Float = PADDING * s;
+        var sMinW:Float = MIN_CONTENT_W * s;
+        var sMaxW:Float = MAX_CONTENT_W * s;
+        var sBarH:Float = BAR_H * s;
+
+        var contentW:Float = Math.min(Math.max(Math.max(rawTW, rawCW), sMinW), sMaxW);
 
         _titleField.width   = contentW;
         _contentField.width = contentW;
 
-        var titleH:Float   = _titleField.textHeight + 4;
-        var contentH:Float = hasContent ? (_contentField.textHeight + 4) : 0;
-        var innerH:Float   = PADDING + titleH + (hasContent ? (6 + contentH) : 0) + PADDING + BAR_H;
+        var titleH:Float   = _titleField.textHeight + (4 * s);
+        var contentH:Float = hasContent ? (_contentField.textHeight + (4 * s)) : 0;
+        var innerH:Float   = sPadding + titleH + (hasContent ? (6 * s + contentH) : 0) + sPadding + sBarH;
 
-        totalW = COUNTER_W + contentW + PADDING * 2;
+        totalW = (COUNTER_W * s) + contentW + (sPadding * 2);
         totalH = innerH;
 
         _bg = new Shape();
-        _drawRoundRect(_bg, totalW, totalH, CORNER, 0xEE111318);
+        _drawRoundRect(_bg, totalW, totalH, CORNER * s, 0xEE111318);
         addChild(_bg);
 
         _accentBar = new Shape();
-        _drawRoundRect(_accentBar, 4, totalH - BAR_H, CORNER, _accentColor);
-        _accentBar.x = 0;
-        _accentBar.y = 0;
+        _drawRoundRect(_accentBar, 4 * s, totalH - sBarH, CORNER * s, _accentColor);
         addChild(_accentBar);
 
         _counterBg = new Shape();
-        _drawRoundRect(_counterBg, COUNTER_W, totalH - BAR_H, 0, _dimColor(_accentColor, 0.18));
-        _counterBg.x = 4;
-        _counterBg.y = 0;
+        _drawRoundRect(_counterBg, COUNTER_W * s, totalH - sBarH, 0, _dimColor(_accentColor, 0.18));
+        _counterBg.x = 4 * s;
         addChild(_counterBg);
 
-        _counterField = _makeField(fontName, 22, _accentColor, true);
-        _counterField.width  = COUNTER_W;
-        _counterField.height = totalH - BAR_H;
-        _counterField.x = 4;
-        _counterField.y = 0;
+        _counterField = _makeField(fontName, Std.int(22 * s), _accentColor, true);
+        _counterField.width  = COUNTER_W * s;
+        _counterField.height = totalH - sBarH;
+        _counterField.x = 4 * s;
         _updateCounter();
         addChild(_counterField);
 
-        var textX:Float = COUNTER_W + 4 + PADDING;
+        var textX:Float = (COUNTER_W * s) + (4 * s) + sPadding;
         _titleField.x = textX;
-        _titleField.y = PADDING;
+        _titleField.y = sPadding;
         addChild(_titleField);
 
         if (hasContent)
         {
             _contentField.x = textX;
-            _contentField.y = PADDING + titleH + 6;
+            _contentField.y = sPadding + titleH + (6 * s);
             addChild(_contentField);
         }
 
         _timerBar = new Shape();
-        _timerBar.y = totalH - BAR_H;
+        _timerBar.y = totalH - sBarH;
         addChild(_timerBar);
-        _updateTimerBar(1.0);
+        
+        _updateTimerBar(1.0); 
 
         var hit:Sprite = new Sprite();
         hit.graphics.beginFill(0x000000, 0);
@@ -163,7 +170,7 @@ class AlertMessage extends Sprite
                     _state = COUNTING;
                 }
                 var t:Float = 1 - Math.pow(1 - _slideProgress, 3);
-                y = _currentY + (-totalH - 10) * (1 - t);
+                y = _currentY + (-totalH - (10 * getScale())) * (1 - t);
                 alpha = t;
 
             case COUNTING:
@@ -219,14 +226,15 @@ class AlertMessage extends Sprite
         _beginFadeOut();
     }
 
-    function _onOver(_:MouseEvent) { _state == COUNTING ? alpha = 0.92 : null; }
+    function _onOver(_:MouseEvent) { if(_state == COUNTING) alpha = 0.92; }
     function _onOut(_:MouseEvent)  { alpha = 1.0; }
 
     function _updateTimerBar(ratio:Float)
     {
+        var s:Float = getScale();
         _timerBar.graphics.clear();
         _timerBar.graphics.beginFill(_accentColor, 0.85);
-        _timerBar.graphics.drawRect(0, 0, totalW * ratio, BAR_H);
+        _timerBar.graphics.drawRect(0, 0, totalW * ratio, BAR_H * s);
         _timerBar.graphics.endFill();
     }
 
@@ -261,10 +269,15 @@ class AlertMessage extends Sprite
             s.graphics.drawRect(0, 0, w, h);
         s.graphics.endFill();
     }
+    
+    function getScale():Float {
+        var s:Float = Lib.application.window.width / 1280;
+        return s < 1 ? 1 : s;
+    }
 
     function _measureTextWidth(tf:TextField):Float
     {
-        tf.width = MAX_CONTENT_W;
+        tf.width = MAX_CONTENT_W * getScale();
         return tf.textWidth + 8;
     }
 
@@ -334,11 +347,12 @@ class AlertMgr extends Sprite
 
     function _relayout()
     {
-        var curY:Float = MARGIN_TOP;
+        var s:Float = Lib.application.window.width / 1280;
+        var curY:Float = MARGIN_TOP * s;
         for (msg in _active)
         {
             msg.setTargetY(curY);
-            curY += msg.totalH + GAP;
+            curY += msg.totalH + (GAP * s);
         }
     }
 
@@ -351,17 +365,6 @@ class AlertMgr extends Sprite
     }
 }
 
-/**
- * KULLANIM:
- *   AlertMsg.show("Başlık");
- *   AlertMsg.show("Başlık", "Mesaj");
- *   AlertMsg.show("Başlık", "Mesaj", 8);
- *   AlertMsg.show("Başlık", "Mesaj", 5, AlertMsg.COLOR_ERROR);
- *   AlertMsg.show("Başlık", "Mesaj", 5, AlertMsg.COLOR_SUCCESS, () -> trace("Tıklandı!"));
- *
- * KURULUM (Main.hx'te bir kez):
- *   stage.addChild(new AlertMgr());
- */
 class AlertMsg
 {
     public static inline var COLOR_INFO:Int    = 0xFF4FC3F7;
@@ -374,11 +377,7 @@ class AlertMsg
                                 color:Int = 0xFF4FC3F7,
                                 ?onClick:Void->Void):Void
     {
-        if (AlertMgr.instance == null)
-        {
-            trace('[AlertMsg] AlertMgr stage\'e eklenmedi! Önce stage.addChild(new AlertMgr()) çağır.');
-            return;
-        }
+        if (AlertMgr.instance == null) return;
         AlertMgr.instance._spawn(title, message, duration, color, onClick);
     }
 }

@@ -15,7 +15,6 @@ class CreditsState extends MusicBeatState
 	var curLinkSelected:Int  = 0;
 	var inLinkSelection:Bool = false;
 
-	// ── Arka plan ──────────────────────────────────────────
 	var bg:FlxSprite;
 	var bgDarken:FlxSprite;
 	var gridBG:FlxBackdrop;
@@ -25,7 +24,6 @@ class CreditsState extends MusicBeatState
 	var ambientOrb3:FlxSprite;
 	var ambientParticles:Array<FlxSprite> = [];
 
-	// ── Sol panel ──────────────────────────────────────────
 	var leftPanel:FlxSprite;
 	var leftPanelGlow:FlxSprite;
 	var leftPanelEdge:FlxSprite;
@@ -37,7 +35,6 @@ class CreditsState extends MusicBeatState
 	var sectionChipText:FlxText;
 	var indexText:FlxText;
 
-	// ── Sağ panel ──────────────────────────────────────────
 	var rightSideCover:FlxSprite;
 	var charIconBG:FlxSprite;
 	var charIconRing:FlxSprite;
@@ -49,15 +46,12 @@ class CreditsState extends MusicBeatState
 	var charRole:FlxText;
 	var charSectionLabel:FlxText;
 
-	// ── Üst bar ────────────────────────────────────────────
 	var topBar:FlxSprite;
 	var topBarAccentLine:FlxSprite;
 	var topBarGlowStrip:FlxSprite;
 	var topBarTitle:FlxText;
-	var topBarSection:FlxText;
 	var topBarHint:FlxText;
 
-	// ── Link sistemi ───────────────────────────────────────
 	var linkContainers:Array<{
 		name:String,
 		container:FlxSprite,
@@ -73,7 +67,6 @@ class CreditsState extends MusicBeatState
 	var linkSelectionBarGlow:FlxSprite;
 	var noLinksText:FlxText;
 
-	// ── Alt bar ────────────────────────────────────────────
 	var helpGrad:FlxSprite;
 	var helpText:FlxText;
 	var progressBarBg:FlxSprite;
@@ -81,7 +74,6 @@ class CreditsState extends MusicBeatState
 	var progressPip:FlxSprite;
 	var progressLabel:FlxText;
 
-	// ── Renk & animasyon ───────────────────────────────────
 	var intendedColor:FlxColor      = 0xFF4A90E2;
 	var currentAccentColor:FlxColor = 0xFF4A90E2;
 	var ambientTimer:Float = 0;
@@ -95,10 +87,6 @@ class CreditsState extends MusicBeatState
 	static inline var LINK_GAP:Int    = 10;
 	static inline var LINK_START_Y:Int = 165;
 
-	// ═══════════════════════════════════════════════════════
-	// CREATE
-	// ═══════════════════════════════════════════════════════
-
 	override function create()
 	{
 		#if DISCORD_ALLOWED
@@ -107,7 +95,6 @@ class CreditsState extends MusicBeatState
 
 		persistentUpdate = true;
 
-		// ── Arka plan ────────────────────────────────────
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.setGraphicSize(Std.int(FlxG.width * 1.15));
@@ -145,7 +132,6 @@ class CreditsState extends MusicBeatState
 
 		createAmbientParticles();
 
-		// ── Sol panel ────────────────────────────────────
 		leftPanelGlow = new FlxSprite(0, 0).makeGraphic(SPLIT_X + 30, FlxG.height, 0xFF4A90E2);
 		leftPanelGlow.alpha = 0.035;
 		add(leftPanelGlow);
@@ -213,7 +199,6 @@ class CreditsState extends MusicBeatState
 		noLinksText.alpha = 0;
 		add(noLinksText);
 
-		// ── Sağ panel ────────────────────────────────────
 		rightSideCover = new FlxSprite(FlxG.width, 0).makeGraphic(FlxG.width - SPLIT_X, FlxG.height, FlxColor.WHITE);
 		FlxTween.tween(rightSideCover, {x: SPLIT_X}, 0.65, {ease: FlxEase.expoOut, startDelay: 0.08});
 		add(rightSideCover);
@@ -272,7 +257,6 @@ class CreditsState extends MusicBeatState
 		charRole.borderSize = 2.5;
 		add(charRole);
 
-		// ── Üst bar ──────────────────────────────────────
 		topBarGlowStrip = new FlxSprite(0, 0).makeGraphic(FlxG.width, TOP_H + 10, 0xFF4A90E2);
 		topBarGlowStrip.alpha = 0.04;
 		add(topBarGlowStrip);
@@ -294,18 +278,11 @@ class CreditsState extends MusicBeatState
 		topBarTitle.borderSize = 2;
 		add(topBarTitle);
 
-		topBarSection = new FlxText(0, 14, FlxG.width - 20, "", 16);
-		topBarSection.setFormat(Paths.font("vcr.ttf"), 16, 0xFF888888, RIGHT,
-			FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		topBarSection.borderSize = 1.2;
-		add(topBarSection);
-
 		topBarHint = new FlxText(0, TOP_H - 19, FlxG.width - 14,
 			Language.getPhrase('credits_hint', '[ CTRL ] Flow  •  [ ESC ] Back  •  [ ENTER / ← ] Links'), 10);
 		topBarHint.setFormat(Paths.font("vcr.ttf"), 10, 0xFF444466, RIGHT);
 		add(topBarHint);
 
-		// ── Alt bar ──────────────────────────────────────
 		helpGrad = FlxGradient.createGradientFlxSprite(SPLIT_X, BOTTOM_H, [0x00000000, 0xCC000000], 1, 90);
 		helpGrad.setPosition(0, FlxG.height - BOTTOM_H);
 		add(helpGrad);
@@ -488,7 +465,8 @@ class CreditsState extends MusicBeatState
 	function updateAccentColor(elapsed:Float)
 	{
 		currentAccentColor = FlxColor.interpolate(currentAccentColor, intendedColor, 0.07);
-
+		
+		if (gridBG != null) gridBG.color = currentAccentColor;
 		if (topBarTitle        != null) topBarTitle.color        = FlxColor.interpolate(topBarTitle.color, currentAccentColor, 0.09);
 		if (topBarAccentLine   != null) topBarAccentLine.color   = currentAccentColor;
 		if (leftAccentLine     != null) leftAccentLine.color     = currentAccentColor;
@@ -523,6 +501,7 @@ class CreditsState extends MusicBeatState
 			FlxTween.tween(charIconGlow, {alpha: 0.18}, 0.6, {ease: FlxEase.quartOut});
 		}
 	}
+
 	function changeSelection(change:Int = 0)
 	{
 		if (creditsStuff.length == 0) return;
@@ -579,7 +558,6 @@ class CreditsState extends MusicBeatState
 		sectionChipText.text  = sectionName.length > 0
 			? sectionName.toUpperCase()
 			: Language.getPhrase('credits_section_default', 'CREDITS');
-		topBarSection.text    = sectionName.length > 0 ? sectionName : "";
 
 		var totalReal = 0;
 		var curReal   = 0;
@@ -589,7 +567,6 @@ class CreditsState extends MusicBeatState
 		}
 		indexText.text = '$curReal / $totalReal';
 
-		// Ghost ikon geçiş
 		if (change != 0 && charIcon.graphic != null)
 		{
 			var ghost = new FlxSprite(charIcon.x, charIcon.y);
@@ -607,7 +584,6 @@ class CreditsState extends MusicBeatState
 			});
 		}
 
-		// İkon yükle
 		var iconPath = 'credits/' + data[1];
 		if (!Paths.fileExists('images/$iconPath.png', IMAGE))
 			iconPath = 'credits/missing_icon';
@@ -652,7 +628,6 @@ class CreditsState extends MusicBeatState
 			charIcon.alpha = 1;
 		}
 
-		// Renk
 		var newColor:FlxColor = CoolUtil.colorFromString(data[4]);
 		if (newColor != intendedColor)
 		{
@@ -667,10 +642,6 @@ class CreditsState extends MusicBeatState
 		updateLinkVisuals();
 		updateProgressBar();
 	}
-
-	// ═══════════════════════════════════════════════════════
-	// PROGRESS BAR
-	// ═══════════════════════════════════════════════════════
 
 	function updateProgressBar()
 	{
@@ -697,10 +668,6 @@ class CreditsState extends MusicBeatState
 		progressPip.color = currentAccentColor;
 		progressLabel.text = '$curReal / $totalReal';
 	}
-
-	// ═══════════════════════════════════════════════════════
-	// LINK KONTEYNERLERİ
-	// ═══════════════════════════════════════════════════════
 
 	function initializeLinkContainers()
 	{
@@ -872,10 +839,6 @@ class CreditsState extends MusicBeatState
 				'▲ ▼  Select   •   ENTER / ←  Links\nCTRL  Watch Credits Flow');
 	}
 
-	// ═══════════════════════════════════════════════════════
-	// YARDIMCI FONKSİYONLAR
-	// ═══════════════════════════════════════════════════════
-
 	function parseAndCategorizeLinks(rawLinks:String)
 	{
 		for (link in linkContainers) link.url = "";
@@ -949,7 +912,6 @@ class CreditsState extends MusicBeatState
 	{
 		return creditsStuff[num].length <= 1;
 	}
-
 
 	function pushDefaultCredits()
 	{

@@ -125,6 +125,9 @@ class MusicBeatState extends FlxState
 		}
 		FlxTransitionableState.skipNextTransOut = false;
 		timePassedOnState = 0;
+		#if mobile
+			FlxG.mouse.visible = false;
+		#end
 	}
 
 	public function initPsychCamera():PsychCamera
@@ -166,7 +169,12 @@ class MusicBeatState extends FlxState
 		stagesFunc(function(stage:BaseStage) {
 			stage.update(elapsed);
 		});
-
+		
+		#if !mobile
+		if (controls.TOGGLE_CURSOR)
+			FlxG.mouse.visible = !FlxG.mouse.visible;
+		#end
+		
 		super.update(elapsed);
 	}
 

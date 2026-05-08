@@ -7,7 +7,6 @@ class MainMenuSettingsState extends CategoryOptionsMenu
 		title    = Language.getPhrase('menu_settings_title', 'Ana Menü Ayarları');
 		rpcTitle = 'Ana Menü Ayarları';
 
-		// ── Sol Panel ────────────────────────────────────────────
 		var catSidePanel = new OptionCategory(
 			Language.getPhrase('menu_cat_side_panel',      'Sol Panel Ayarları'),
 			Language.getPhrase('menu_cat_side_panel_desc', 'Ana menünün sol tarafındaki profil, istatistik ve son oynanan panelleri.')
@@ -30,7 +29,6 @@ class MainMenuSettingsState extends CategoryOptionsMenu
 
 		addCategory(catSidePanel);
 
-		// ── Üst Bar ──────────────────────────────────────────────
 		var catTopBar = new OptionCategory(
 			Language.getPhrase('menu_cat_top_bar',      'Üst Bar Ayarları'),
 			Language.getPhrase('menu_cat_top_bar_desc', 'Ekranın üstündeki saat, tarih ve selamlama yazılarını özelleştir.')
@@ -99,7 +97,6 @@ class MainMenuSettingsState extends CategoryOptionsMenu
 
 		addCategory(catBG);
 
-		// ── Menü Videosu ─────────────────────────────────────────
 		var catVideo = new OptionCategory(
 			Language.getPhrase('menu_cat_video',      'Menü Videosu'),
 			Language.getPhrase('menu_cat_video_desc', 'Ana menü arka planı yerine özel bir video oynat.')
