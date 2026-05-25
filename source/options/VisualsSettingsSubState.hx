@@ -106,6 +106,13 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			]);
 		addOption(option);
 
+        var option:Option = new Option(
+			Language.getPhrase('yayinci_modu',      'Yayinci Modu'),
+			Language.getPhrase('yayinci_modu_desc', 'Aktif edilirse, tus atamalariniz oklarin ustunde gorunur ve benzeri.'),
+			'yayinci',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option(
 			Language.getPhrase('visuals_flashing',      'Yanıp / Sönen Işıklar'),
 			Language.getPhrase('visuals_flashing_desc', 'Yanıp sönen ışıklara karşı hassassanız bu seçeneğin işaretini kaldırın!'),

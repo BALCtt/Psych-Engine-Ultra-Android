@@ -75,7 +75,7 @@ import crowplexus.hscript.Printer;
  * "function triggerEvent" - Called when the song hits your event's timestamp, this is probably what you were looking for
 **/
 class PlayState extends MusicBeatState
-{
+{   var keyTexts:Array<FlxText> = [];
 	public static var STRUM_X = 42;
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
@@ -286,6 +286,40 @@ class PlayState extends MusicBeatState
 
 	override public function create()
 	{
+    function createKeybindDisplay()
+{
+    var keys = [
+        ClientPrefs.keyBinds.get("note_left")[0],
+        ClientPrefs.keyBinds.get("note_down")[0],
+        ClientPrefs.keyBinds.get("note_up")[0],
+        ClientPrefs.keyBinds.get("note_right")[0]
+    ];
+
+    for(i in 0...4)
+    {
+        var strum = playerStrums.members[i];
+
+        var txt = new FlxText(
+            strum.x - 0,
+            strum.y - 60,
+            0,
+            Std.string(keys[i]).toUpperCase(),
+            32
+        );
+
+        txt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
+
+        txt.borderStyle = OUTLINE;
+        txt.borderSize = 2;
+        txt.borderColor = FlxColor.BLACK;
+
+        txt.cameras = [camHUD];
+
+        add(txt);
+        keyTexts.push(txt);
+    }
+}
+
 		//trace('Playback Rate: ' + playbackRate);
 		_lastLoadedModDirectory = Mods.currentModDirectory;
 		Paths.clearStoredMemory();
@@ -707,6 +741,10 @@ class PlayState extends MusicBeatState
 			camGame.bgColor = FlxColor.BLACK;
 
 		super.create();
+		if(ClientPrefs.data.yayinci)
+{
+    createKeybindDisplay();
+}
 		if (ClientPrefs.data.peuwatermark) {
 			createPEUWatermark();
 		}
@@ -1789,6 +1827,13 @@ class PlayState extends MusicBeatState
 		callOnScripts('onUpdate', [elapsed]);
 
 		super.update(elapsed);
+		for(i in 0...keyTexts.length)
+        {
+        	var strum = playerStrums.members[i];
+
+    		keyTexts[i].x = strum.x - 10;
+   			 keyTexts[i].y = strum.y - 60;
+		}
 
 		setOnScripts('curDecStep', curDecStep);
 		setOnScripts('curDecBeat', curDecBeat);
