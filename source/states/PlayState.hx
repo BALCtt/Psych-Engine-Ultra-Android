@@ -300,7 +300,7 @@ class PlayState extends MusicBeatState
         var strum = playerStrums.members[i];
 
         var txt = new FlxText(
-            strum.x - 0,
+            strum.x + 40,
             strum.y - 60,
             0,
             Std.string(keys[i]).toUpperCase(),
@@ -1831,7 +1831,7 @@ class PlayState extends MusicBeatState
         {
         	var strum = playerStrums.members[i];
 
-    		keyTexts[i].x = strum.x - 10;
+    		keyTexts[i].x = strum.x + 40;
    			 keyTexts[i].y = strum.y - 60;
 		}
 
