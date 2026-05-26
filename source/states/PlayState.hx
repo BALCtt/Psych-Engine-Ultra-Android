@@ -223,6 +223,9 @@ class PlayState extends MusicBeatState
 	public var songHits:Int = 0;
 	public var songMisses:Int = 0;
 	public var scoreTxt:FlxText;
+	var songCard:FlxSprite;
+	var songCardTitle:FlxText;
+	var songCardDuration:FlxText;
 	var timeTxt:FlxText;
 	var scoreTxtTween:FlxTween;
 
@@ -636,6 +639,23 @@ class PlayState extends MusicBeatState
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
 		uiGroup.add(scoreTxt);
+		songCard = new FlxSprite(FlxG.width - 220, 10);
+		songCard.makeGraphic(210, 55, FlxColor.fromRGBFloat(0, 0, 0, 0.6));
+		songCard.scrollFactor.set();
+		songCard.visible = ClientPrefs.data.yayinci;
+		uiGroup.add(songCard);
+
+		songCardTitle = new FlxText(FlxG.width - 215, 14, 200, SONG.song, 14);
+		songCardTitle.setFormat(Paths.font("vcr.ttf"), 14, FlxColor.WHITE, RIGHT);
+		songCardTitle.scrollFactor.set();
+		songCardTitle.visible = ClientPrefs.data.yayinci;
+		uiGroup.add(songCardTitle);
+
+		songCardDuration = new FlxText(FlxG.width - 215, 34, 200, '0:00 / 0:00', 12);
+		songCardDuration.setFormat(Paths.font("vcr.ttf"), 12, FlxColor.fromRGB(200, 200, 200), RIGHT);
+		songCardDuration.scrollFactor.set();
+		songCardDuration.visible = ClientPrefs.data.yayinci;
+		uiGroup.add(songCardDuration);
 
 		// Initialize Flame Streak indicator
 		// Position flame next to healthbar on right side (more to the left)
@@ -1276,6 +1296,12 @@ class PlayState extends MusicBeatState
 		callOnScripts('onUpdateScore', [miss]);
 	}
 
+		function formatTime(seconds:Int):String {
+    		var m:Int = Math.floor(seconds / 60);
+    		var s:Int = seconds % 60;
+    		return '$m:${s < 10 ? "0" + s : "$s"}';
+		}
+
 	public dynamic function updateScoreText()
 	{
 		var str:String = Language.getPhrase('rating_$ratingName', ratingName);
@@ -1810,7 +1836,16 @@ class PlayState extends MusicBeatState
 	var allowDebugKeys:Bool = true;
 
 	override public function update(elapsed:Float)
-	{
+	{		if (songCard != null) {
+    		songCard.visible = ClientPrefs.data.yayinci;
+    		songCardTitle.visible = ClientPrefs.data.yayinci;
+    		songCardDuration.visible = ClientPrefs.data.yayinci;
+   		 if (ClientPrefs.data.yayinci) {
+        var elapsed2:Int = Math.floor(Conductor.songPosition / 1000);
+        var total:Int = Math.floor(songLength / 1000);
+        songCardDuration.text = '${formatTime(elapsed2)} / ${formatTime(total)}';
+    }
+}
 		if(!inCutscene && !paused && !freezeCamera) {
 			FlxG.camera.followLerp = 0.04 * cameraSpeed * playbackRate;
 			var idleAnim:Bool = (boyfriend.getAnimationName().startsWith('idle') || boyfriend.getAnimationName().startsWith('danceLeft') || boyfriend.getAnimationName().startsWith('danceRight'));
