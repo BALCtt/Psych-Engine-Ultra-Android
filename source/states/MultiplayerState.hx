@@ -118,9 +118,6 @@ class MultiplayerState extends MusicBeatState {
 
         FlxG.mouse.visible = true;
 
-        #if mobile
-        mobileManager.addMobilePad('NONE', 'B');
-        #end
     }
 
     function repositionItems() {
