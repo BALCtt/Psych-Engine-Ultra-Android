@@ -1285,9 +1285,9 @@ class PlayState extends MusicBeatState
 			str += ' (${percent}%) - ' + Language.getPhrase(ratingFC);
 		}
 
-		var tempScore:String;
-		if(!instakillOnMiss) tempScore = Language.getPhrase('score_text', 'Score: {1} | Misses: {2} | Accuracy: {3}', [songScore, songMisses, str]);
-		else tempScore = Language.getPhrase('score_text_instakill', 'Score: {1} | Misses: {2}', [songScore, str]);
+			var tempScore:String;
+			if(!instakillOnMiss) tempScore = Language.getPhrase('score_text', 'Score: {1} | Misses: {2} | Accuracy: {3}', [songScore, ClientPrefs.data.yayinci ? '???' : songMisses, str]);
+			else tempScore = Language.getPhrase('score_text_instakill', 'Score: {1} | Misses: {2}', [songScore, ClientPrefs.data.yayinci ? '???' : str]);
 		scoreTxt.text = tempScore;
 	}
 
@@ -2545,6 +2545,8 @@ class PlayState extends MusicBeatState
 	public var transitioning = false;
 	public function endSong()
 	{
+		
+		
 		mobileControls.instance.visible = #if !android touchPad.visible = #end false;
 		//Should kill you if you tried to cheat
 		if(!startingSong)

@@ -66,7 +66,8 @@ class MainMenuState extends MusicBeatState
 	var cardIcons:Array<FlxSprite> = [];
 	var cardTitles:Array<FlxText> = [];
 	var mouseCursor:FlxSprite;
-	
+	var lastSongTxt:FlxText;
+
 	// Mod BG System
 	var wallpaperBG:FlxSprite;
 	var wallpaperImages:Array<String> = [];
@@ -412,6 +413,19 @@ class MainMenuState extends MusicBeatState
 		bgLayer1.screenCenter();
 		add(bgLayer1);
 		
+		lastSongTxt = new FlxText(
+    		20,
+    		FlxG.height - 40,
+    		0,
+    		"Last Song: " + FlxG.save.data.lastSong,
+    		24
+		);
+
+		lastSongTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE);
+		lastSongTxt.scrollFactor.set();
+
+		add(lastSongTxt);
+
 		gridBG = new FlxBackdrop(FlxGridOverlay.createGrid(60, 60, 120, 120, true, 0x08FFFFFF, 0x0));
 		gridBG.velocity.set(15, 15);
 		gridBG.alpha = 0.2;
