@@ -50,7 +50,7 @@ class FreeplayTurkey extends MusicBeatState
 	var bottomText:FlxText;
 	var bottomBG:FlxSprite;
 
-	var player:MusicPlayer;
+	var player:Dynamic = {playingMusic: false, playing: false, curTime: 0.0};
 
 	override function create()
 	{
@@ -183,8 +183,9 @@ class FreeplayTurkey extends MusicBeatState
 		bottomText.scrollFactor.set();
 		add(bottomText);
 		
-		player = new MusicPlayer(cast(this, states.FreeplayState));
-		add(player);
+		// player = new MusicPlayer(cast this);
+		// add(player);
+		player = cast {playingMusic: false};
 		
 		changeSelection();
 		updateTexts();
@@ -512,8 +513,8 @@ class FreeplayTurkey extends MusicBeatState
 
 	function changeSelection(change:Int = 0, playSound:Bool = true)
 	{
-		if (player.playingMusic)
-			return;
+		if (player != null && player.playingMusic)
+    		return;
 
 		curSelected = FlxMath.wrap(curSelected + change, 0, songs.length-1);
 		_updateSongLastDifficulty();

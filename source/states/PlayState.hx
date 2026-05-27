@@ -2545,6 +2545,11 @@ class PlayState extends MusicBeatState
 				});
 			}
 		}
+		// Son oynanan şarkıyı kaydet
+		FlxG.save.data.lastPlayedSong = SONG.song;
+		FlxG.save.data.lastPlayedScore = songScore;
+		FlxG.save.data.lastPlayedDifficulty = storyDifficulty;
+		FlxG.save.flush();
 	}
 
 	public function tweenCamIn() {
