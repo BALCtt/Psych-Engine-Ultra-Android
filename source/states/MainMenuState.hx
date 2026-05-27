@@ -44,17 +44,18 @@ class MainMenuState extends MusicBeatState
 	public static var psychEngineVersion:String = '0.1.3';
 	public static var curSelected:Int = 0;
 	
-	var menuItems:FlxTypedGroup<FlxSpriteGroup>;
 	var optionShit:Array<String> = [
-		'story_mode',
-		'freeplay',
-		'changelog',
-		#if MODS_ALLOWED 'mods', #end
-		#if ACHIEVEMENTS_ALLOWED 'achievements', #end
-		'credits',
-		'settings',
-		'multiplayer',
-	];
+    'story_mode',
+    'freeplay',
+    'changelog',
+    #if MODS_ALLOWED 'mods', #end
+    #if ACHIEVEMENTS_ALLOWED 'achievements', #end
+    'credits',
+    'settings',
+];
+
+	var menuItems:FlxTypedGroup<FlxSpriteGroup>;
+
 
 	// UI
 	var scanline:FlxBackdrop;
@@ -66,7 +67,6 @@ class MainMenuState extends MusicBeatState
 	var cardIcons:Array<FlxSprite> = [];
 	var cardTitles:Array<FlxText> = [];
 	var mouseCursor:FlxSprite;
-	var lastSongTxt:FlxText;
 
 	// Mod BG System
 	var wallpaperBG:FlxSprite;
@@ -180,7 +180,6 @@ class MainMenuState extends MusicBeatState
 		'achievements' => 0xFF00E5FF,
 		'credits'      => 0xFF10B981,
 		'settings'     => 0xFF64748B,
-		'multiplayer'     => 0xFF64748B
 	];
 	
 	var menuIconMap:Map<String, String> = [
@@ -191,7 +190,6 @@ class MainMenuState extends MusicBeatState
 		'achievements' => "💎",
 		'credits'      => "",
 		'settings'     => "",
-		'multiplayer'     => ""
 	];
 
 	// Boş — create() içinde Language ile doldurulur
@@ -212,7 +210,6 @@ class MainMenuState extends MusicBeatState
 			'achievements' => Language.getPhrase('menu_title_achievements', 'Achievements'),
 			'credits'      => Language.getPhrase('menu_title_credits',      'Credits'),
 			'settings'     => Language.getPhrase('menu_title_settings',     'Settings'),
-			'multiplayer'     => Language.getPhrase('menu_title_settings',     'multiplayer')
 		];
 
 		menuDescriptions = [
@@ -223,7 +220,6 @@ class MainMenuState extends MusicBeatState
 			'achievements' => Language.getPhrase('menu_desc_achievements', 'All your achievements!\nComplete your collection.'),
 			'credits'      => Language.getPhrase('menu_desc_credits',      'Our team!\nThe people behind this project.'),
 			'settings'     => Language.getPhrase('menu_desc_settings',     'Customize the game!\nYou\'re in full control.'),
-			'multiplayer'     => Language.getPhrase('menu_desc_settings',     'Customize the game!\nYou\'re in full control.')
 		];
 
 		newsItems = [
@@ -413,18 +409,6 @@ class MainMenuState extends MusicBeatState
 		bgLayer1.screenCenter();
 		add(bgLayer1);
 		
-		lastSongTxt = new FlxText(
-    		20,
-    		FlxG.height - 40,
-    		0,
-    		"Last Song: " + FlxG.save.data.lastSong,
-    		24
-		);
-
-		lastSongTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE);
-		lastSongTxt.scrollFactor.set();
-
-		add(lastSongTxt);
 
 		gridBG = new FlxBackdrop(FlxGridOverlay.createGrid(60, 60, 120, 120, true, 0x08FFFFFF, 0x0));
 		gridBG.velocity.set(15, 15);
@@ -817,8 +801,8 @@ class MainMenuState extends MusicBeatState
 		changelogTextTitle.scrollFactor.set();
 		add(changelogTextTitle);
 
-		var notes = Language.getPhrase('changelog_notes',
-			"\n- Interface Renewed!\n- Profile System Updated\n- Menu Themes Added.\n- Mod Support Optimized.\n- Based on P.E Ultra 0.5\n- Some Bugfixes.\n \n- CURRENT VERSION: Ultra Edition\n Status: Up to Date");
+		var changelogPath = Paths.txt('changelog');
+			var notes = openfl.Assets.exists(changelogPath) ? openfl.Assets.getText(changelogPath) : "Henüz güncelleme notu yok.";
 		
 		changelogTextNotes = new FlxText(0, changelogTextTitle.y + 40, FlxG.width - 200, notes, 22);
 		changelogTextNotes.setFormat(Paths.font("vcr.ttf"), 22, FlxColor.WHITE, CENTER);
